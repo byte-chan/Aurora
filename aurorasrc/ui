@@ -1,0 +1,190 @@
+local cachedWallpaper = nil
+
+local updateConfig
+local config
+local makeUiConfig
+
+function aurora.uiSettings()
+  aUtil.doFile("rom/programs/edit", "/.aurora/uiConfig")
+  cachedWallpaper = nil
+  local newconfig = aFile.unserializeFile(".aurora/uiConfig")
+  if newconfig then
+    config = updateConfig(newconfig, makeUiConfig())
+  end
+end
+
+local menuItems = {}
+local menuWidth = 0
+local function refreshMenu()
+  menuItems = aFile.unserializeFile(".aurora/menuItems")
+  for i, v in pairs(menuItems) do
+    if #v.label > menuWidth then
+      menuWidth = #v.label
+    end
+  end
+end
+
+function makeUiConfig()
+  return {
+    theme = {
+      menu = {
+        bg = colors.lightGray,
+        fg = colors.black,
+      },
+      menubutton = {
+        bg1 = colors.white,
+        fg1 = colors.black,
+        bg2 = colors.gray,
+        fg2 = colors.white,
+      },
+      menubar = {
+        bg = colors.lightGray,
+      },
+      wallpaper = {
+        image = {
+          path = ".aurora/wallpaper",
+          x = "C",
+          y = "C"
+        },
+        color = colors.white,
+      },
+    },
+    text = {
+      menubutton = "Aurora",
+    },
+  }
+end
+
+local config = aFile.unserializeFile(".aurora/uiConfig") or {}
+
+local uistate = {
+  menuVisible = false,
+}
+
+function updateConfig(user, template)
+  for k, v in pairs(template) do
+    if type(v) == "table" then
+      if user[k] == nil then
+        user[k] = v
+      else
+        updateConfig(user[k], v)
+      end
+    else
+      if user[k] == nil then
+        user[k] = v
+      end
+    end
+  end
+end
+
+updateConfig(config, makeUiConfig())
+function aurora.saveUIConfig()
+  aFile.serializeFile(".aurora/uiConfig", config)
+end
+aurora.saveUIConfig()
+
+local function redrawWallpaper()
+  local wallpaper = config.theme.wallpaper
+  term.setBackgroundColor(wallpaper.color)
+  term.clear()
+  if wallpaper.image.path ~= "" and fs.exists(wallpaper.image.path) or cachedWallpaper then
+    local img = cachedWallpaper or paintutils.loadImage(wallpaper.image.path)
+    cachedWallpaper = img
+    local height = #img
+    local width = 0
+    for i = 1, height do
+      if #img[i] > width then
+        width = #img[i]
+      end
+    end
+    local termw, termh = term.getSize()
+    local x = wallpaper.image.x == "C"
+    and math.ceil(termw / 2) - math.floor(width / 2)
+    or wallpaper.image.x
+    local y = wallpaper.image.y == "C"
+    and math.ceil(termh / 2) - math.floor(height / 2)
+    or wallpaper.image.y
+    if x < 0 then
+      x = termw + x
+    end
+    if y < 0 then
+      y = termh + y
+    end
+    paintutils.drawImage(img, x, y)
+  end
+end
+
+local function redrawMenuButton()
+  local menubutton = config.theme.menubutton
+  local termw, termh = term.getSize()
+  term.setCursorPos(1, termh)
+  if uistate.menuVisible then
+    term.setTextColor(menubutton.fg2)
+    term.setBackgroundColor(menubutton.bg2)
+  else
+    term.setTextColor(menubutton.fg1)
+    term.setBackgroundColor(menubutton.bg1)
+  end
+  term.write(" "..config.text.menubutton.." ")
+end
+
+local function redrawMenuBar()
+  local menubar = config.theme.menubar
+  local termw, termh = term.getSize()
+  term.setCursorPos(1, termh)
+  term.setBackgroundColor(menubar.bg)
+  term.clearLine()
+  redrawMenuButton()
+end
+
+local function redrawMenu()
+  local menu = config.theme.menu
+  local termw, termh = term.getSize()
+  term.setTextColor(menu.fg)
+  term.setBackgroundColor(menu.bg)
+  for i, v in ipairs(menuItems) do
+    term.setCursorPos(1, termh - (#menuItems - i) - 1)
+    term.write(" "..v.label..string.rep(" ", menuWidth - #v.label + 1))
+  end
+end
+
+local function redraw()
+  if not aurora.config.debug then
+    term.current().setVisible(false)
+  end
+  redrawWallpaper()
+  redrawMenuBar()
+  redrawMenuButton()
+  if uistate.menuVisible then
+    redrawMenu()
+  end
+  if not aurora.config.debug then
+    term.current().setVisible(true)
+  end
+end
+
+refreshMenu()
+
+while true do
+  redraw()
+  local ev = {os.pullEventRaw()}
+  local termw, termh = term.getSize()
+  if ev[1] == "mouse_click" then
+    local hasMenuClick = false
+    if uistate.menuVisible then
+      if ev[3] >= 1 and ev[3] <= menuWidth + 2
+      and ev[4] >= termh - #menuItems
+      and ev[4] < termh then
+        hasMenuClick = true
+        menuItems[#menuItems - (termh - ev[4] - 1)].func()
+        uistate.menuVisible = false
+      end
+    end
+    if not hasMenuClick then
+      if ev[3] >= 1 and ev[3] <= #config.text.menubutton + 2
+      and ev[4] == termh then
+        uistate.menuVisible = not uistate.menuVisible
+      end
+    end
+  end
+end

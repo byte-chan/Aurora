@@ -1,0 +1,15 @@
+term.clear()
+term.setCursorPos(1, 1)
+term.setBackgroundColor(colors.gray)
+term.clearLine()
+aUtil.cwrite("Welcome to Aurora", 1)
+term.setBackgroundColor(colors.black)
+term.setCursorPos(1, 2)
+write("Computer name: ")
+local computerName = read()
+if computerName ~= "" then
+  os.setComputerLabel(computerName)
+  aurora.config.name = computerName
+end
+aurora.config.firstboot = false
+saveConfig()

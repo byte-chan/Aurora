@@ -1,0 +1,38 @@
+function readFile(path)
+  local f = fs.open(path, "r")
+  if not f then
+    return nil
+  end
+  local c = f.readAll()
+  f.close()
+  return c
+end
+function unserializeFile(path)
+  local ok, arg = pcall(setfenv(
+    loadstring("return "..(readFile(path) or "nil")),
+    getfenv()
+  ))
+  if not ok then
+    return nil, arg
+  end
+  return arg
+end
+
+function writeFile(path, data)
+  local f = fs.open(path, "w")
+  pcall(function()
+    f.write(data)
+  end)
+  f.close()
+end
+function serializeFile(path, data)
+  writeFile(path, textutils.serialize(data))
+end
+
+function appendFile(path, data)
+  local f = fs.open(path, "a")
+  pcall(function()
+    f.write(data)
+  end)
+  f.close()
+end

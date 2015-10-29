@@ -1,0 +1,28 @@
+local driveSide
+for i, v in pairs(peripheral.getNames()) do
+  if peripheral.getType(v) == "drive" and peripheral.call(v, "getMountPath") then
+    driveSide = v
+  end
+end
+if not driveSide then
+  return false
+end
+local diskPath = disk.getMountPath(driveSide)
+local gameInfo = aFile.unserializeFile(fs.combine(diskPath, "info"))
+if not gameInfo then
+  return false
+end
+aUtil.debug("Installing game \""..gameInfo.sID.."\"")
+local gamePath = fs.combine("games", gameInfo.sID)
+if not fs.exists(gamePath) then
+  fs.makeDir(gamePath)
+  aUtil.debug("  Game directory created")
+end
+
+for i, v in pairs(fs.list(diskPath)) do
+  aUtil.debug("  Copying file \""..v.."\"")
+  pcall(fs.delete, fs.combine(gamePath, v))
+  fs.copy(fs.combine(diskPath, v), fs.combine(gamePath, v))
+end
+
+return true

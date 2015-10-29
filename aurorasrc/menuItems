@@ -1,0 +1,24 @@
+{
+  {label = "App Browser",          func = function()
+    aUtil.doFile(".aurora/appbrowser")
+  end},
+  {label = "Floppy Install",       func = function()
+    aUtil.doFile(".aurora/floppyinstall")
+  end},
+  {label = "Shell",                func = function()
+    aUtil.doFile("rom/programs/shell")
+  end},
+  {label = "UI config",            func = aurora.uiSettings},
+  {label = "Aurora config",        func = aurora.settingsUI},
+  {label = "Update",               func = function()
+    local r = http.get("https://raw.github.com/MultHub/Aurora/master/updater")
+    local c = r.readAll()
+    r.close()
+    setfenv(loadstring(c), getfenv())()
+  end},
+  {label = "Credits",              func = function()
+    aUtil.doFile(".aurora/credplay")
+  end},
+  {label = "Reboot",               func = os.reboot},
+  {label = "Shutdown",             func = os.shutdown},
+}

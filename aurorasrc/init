@@ -1,0 +1,105 @@
+setmetatable(getfenv(), {__index = _G})
+
+shell.setPath(shell.path()..":/.aurora")
+
+local craftOSVersion = os.version
+function os.version()
+  return "Aurora: "..craftOSVersion()
+end
+
+local function makeCleanConfig()
+  return {
+    name = "Aurora",
+    debug = false,
+    uiPath = ".aurora/ui",
+    uiShutdown = true,
+    firstboot = true,
+  }
+end
+
+function loadAPI(path)
+  local f = fs.open(path, "r")
+  if not f then
+    error("File not found", 1)
+  end
+  local c = f.readAll()
+  f.close()
+  local fenv = {}
+  setmetatable(fenv, {__index = getfenv()})
+  setfenv(loadstring(c, fs.getName(path)), fenv)()
+  _G[fs.getName(path)] = {}
+  for k, v in pairs(fenv) do
+    _G[fs.getName(path)][k] = v
+  end
+end
+
+print("Loading aFile")
+loadAPI(".aurora/aFile")
+sleep(0)
+
+_G.aurora = {
+  config = aFile.unserializeFile(".aurora/config") or makeCleanConfig(),
+}
+
+function saveConfig()
+  aFile.serializeFile(".aurora/config", aurora.config)
+end
+
+function reloadConfig()
+  aurora.config = aFile.unserializeFile(".aurora/config")
+end
+
+for k, v in pairs(makeCleanConfig()) do
+  if aurora.config[k] == nil then
+    aurora.config[k] = v
+  end
+end
+saveConfig()
+
+print("Loading aUtil")
+loadAPI(".aurora/aUtil")
+sleep(0)
+
+aUtil.debug("Loading APIs")
+
+local bootAnim = 1
+local bootAnimChars = "-\\|/"
+
+for k, v in pairs(fs.list(".aurora/apis")) do
+  aUtil.debug("  - \""..v.."\"")
+  term.clear()
+  aUtil.cwrite("Aurora \""..aurora.config.name.."\"", aUtil.centerY() - 1)
+  if aurora.config.debug then
+    aUtil.cwrite("Loading "..v, aUtil.centerY() + 1)
+  end
+  aUtil.cwrite(bootAnimChars:sub(bootAnim, bootAnim))
+  loadAPI(fs.combine(".aurora/apis", v))
+  bootAnim = (bootAnim % #bootAnimChars) + 1
+  sleep(0)
+end 
+
+if fs.exists(".aurora/sdk/init") then
+  aUtil.doFile(".aurora/sdk/init")
+  print("SDK loaded")
+end
+
+term.clear()
+aUtil.cwrite("Aurora \""..aurora.config.name.."\"")
+sleep(0)
+
+if aurora.config.firstboot then
+  aUtil.doFile(".aurora/firstBoot")
+end
+
+aUtil.doFile(".aurora/settingsUI")
+
+if not aurora.config.uiPath or not fs.exists(aurora.config.uiPath) or fs.isDir(aurora.config.uiPath) then
+  term.setCursorPos(1, 1)
+  printError("\"uiPath\" not set or invalid, falling back to shell")
+  aUtil.doFile("rom/programs/shell")
+else
+  aUtil.doFile(aurora.config.uiPath)
+end
+if aurora.config.uiShutdown then
+  os.shutdown()
+end

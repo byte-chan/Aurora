@@ -1,0 +1,72 @@
+-- img API (custom paintutils-like image format)
+-- by MultMine
+
+local function parseImageData(str)
+  local rawlines = {}
+  local tmp = ""
+  for i = 1, #str do
+    if str:sub(i, i) == "\n" then
+      table.insert(rawlines, tmp)
+      tmp = ""
+    else
+      tmp = tmp .. str:sub(i, i)
+    end
+  end
+  if tmp ~= "" then
+    table.insert(rawlines, tmp)
+  end
+  local lines = {}
+  for n, rawline in ipairs(rawlines) do
+    local line = {}
+    for i = 1, #rawline / 3 do
+      local rawpixel = rawline:sub((i - 1) * 3 + 1, i * 3)
+      local bgColor, fgColor
+      if rawpixel:sub(1, 1) == " " or rawpixel:sub(1, 1) == "" then
+        bgColor = 0
+      else
+        bgColor = 2 ^ tonumber(rawpixel:sub(1, 1), 16)
+      end
+      if rawpixel:sub(2, 2) == " " or rawpixel:sub(2, 2) == "" then
+        fgColor = 0
+      else
+        fgColor = 2 ^ tonumber(rawpixel:sub(2, 2), 16)
+      end
+      local char    = rawpixel:sub(3, 3)
+      table.insert(line, {
+        bgColor = bgColor,
+        fgColor = fgColor,
+        char    = char})
+    end
+    table.insert(lines, line)
+  end
+  return lines
+end
+
+function loadImage(path)
+  local rawImage = aFile.readFile(path)
+  if not rawImage then
+    return false
+  end
+  return parseImageData(rawImage)
+end
+
+function drawImage(img, x, y)
+  local lastBg, lastFg
+  for _y = 1, #img do
+    for _x = 1, #img[_y] do
+      local pixel = img[_y][_x]
+      if pixel.bgColor ~= lastBg and pixel.bgColor ~= 0 then
+        term.setBackgroundColor(pixel.bgColor)
+        lastBg = pixel.bgColor
+      end
+      if pixel.fgColor ~= lastFg and pixel.fgColor ~= 0 then
+        term.setTextColor(pixel.fgColor)
+        lastFg = pixel.fgColor
+      end
+      term.setCursorPos(_x + x - 1, _y + y - 1)
+      if pixel.bgColor ~= 0 then
+        term.write(pixel.char or "")
+      end
+    end
+  end
+end

@@ -1,0 +1,43 @@
+function aurora.settingsUI()
+  local scrollY = 0
+
+  local function redrawBoolean(x, y, value)
+    term.setCursorPos(x, y)
+    term.setTextColor(colors.white)
+    if value then
+      term.setBackgroundColor(colors.gray)
+      term.write("   ")
+      term.setBackgroundColor(colors.green)
+      term.write(" I ")
+    else
+      term.setBackgroundColor(colors.red)
+      term.write(" I ")
+      term.setBackgroundColor(colors.gray)
+      term.write(" I ")
+    end
+  end
+
+  local function redraw()
+    if not aurora.config.debug then
+      term.current().setVisible(false)
+    end
+    term.setTextColor(colors.black)
+    term.setBackgroundColor(colors.white)
+    term.clear()
+    term.setCursorPos(1, 1)
+    term.setBackgroundColor(colors.lightGray)
+    term.clearLine()
+    aUtil.cwrite("Aurora Settings", 1)
+    if not aurora.config.debug then
+      term.current().setVisible(true)
+    end
+  end
+
+  term.setTextColor(colors.white)
+  term.setBackgroundColor(colors.black)
+  term.clear()
+  term.setCursorPos(2, 2)
+  print("Settings UI is WIP, starting edit")
+--  sleep(2)
+  aUtil.doFile("rom/programs/edit", "/.aurora/config")
+end

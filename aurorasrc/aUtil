@@ -1,0 +1,39 @@
+function debug(str)
+  if aurora.config.debug then
+    aFile.appendFile(".aurora/debug.log", "["..os.clock().."] "..str.."\n")
+  end
+end
+
+function centerX()
+  local w, h = term.getSize()
+  return math.ceil(w / 2)
+end
+
+function centerY()
+  local w, h = term.getSize()
+  return math.ceil(h / 2)
+end
+
+function cwrite(str, cy)
+  local w, h = term.getSize()
+  local y = cy or math.ceil(h / 2)
+  local x = math.ceil(w / 2) - math.floor(#str / 2)
+  term.setCursorPos(x, y)
+  term.write(str)
+end
+
+function doFile_env(env, path, ...)
+  local fn, err = loadfile(path)
+  if not fn then
+    return false, err
+  end
+  local fenv = nil
+  if env then
+    fenv = setmetatable(env, {__index = getfenv()})
+  end
+  return pcall(setfenv(fn, fenv or getfenv()), ...)
+end
+
+function doFile(path, ...)
+  return doFile_env(nil, path, ...)
+end

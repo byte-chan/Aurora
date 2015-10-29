@@ -1,0 +1,46 @@
+local termw, termh = term.getSize()
+
+local function drawLine(line)
+  if line:sub(1, 3) == "[C]" then
+    aUtil.cwrite(line:sub(4), termh)
+  else
+    term.setCursorPos(1, termh)
+    term.write(line)
+  end
+end
+
+local delay = 0.5
+
+local c = aFile.readFile(".aurora/credits")
+
+local lines = {}
+
+local tmp = ""
+for i = 1, #c do
+  if c:sub(i, i) == "\n" then
+    table.insert(lines, tmp)
+    tmp = ""
+  else
+    tmp = tmp .. c:sub(i, i)
+  end
+end
+table.insert(lines, tmp)
+
+for i = 1, termh * 2 do
+  if i == termh + math.ceil(termh / 2) then
+    table.insert(lines, "[C]Presented by LMNet")
+  else
+    table.insert(lines, "")
+  end
+end
+term.setBackgroundColor(colors.black)
+term.clear()
+for n, line in ipairs(lines) do
+  term.scroll(1)
+  term.setTextColor(colors.gray)
+  drawLine(line)
+  sleep(delay)
+  term.setTextColor(colors.white)
+  drawLine(line)
+end
+sleep(5)

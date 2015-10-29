@@ -1,0 +1,88 @@
+-- base64 API by MultMine
+local base64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+.. "abcdefghijklmnopqrstuvwxyz0123456789+/"
+
+local function toBits(n)
+  local t = {}
+  for i = 8, 1, -1 do
+    table.insert(t, bit.brshift(bit.band(n, 2^(i-1)), i - 1))
+  end
+  return t
+end
+
+local function encodeBlock(blk)
+  local b64 = ""
+  local b64_bits = {}
+  for i = 1, 3 do
+    local c = string.byte(blk:sub(i, i)) or 0
+    for j = 8, 1, -1 do
+      table.insert(b64_bits, bit.brshift(bit.band(c, 2^(j-1)), j - 1))
+    end
+  end
+  local byteCount = #blk + 1
+  for i = 1, byteCount do
+    local n = 0
+    for j = 1, 6 do
+      n = n + (2 ^ (6 - j)) * b64_bits[(i - 1) * 6 + j]
+    end
+    b64 = b64 .. base64:sub(n + 1, n + 1)
+  end
+  return b64 .. string.rep("=", 4 - byteCount)
+end
+
+local function decodeBlock(b64)
+  local msg = ""
+  local msg_bits = {}
+  for i = 1, 4 do
+    local c = b64:sub(i, i):byte()
+    if c >= 0x30 and c <= 0x39 then
+      local t = toBits(c + 4)
+      for j = 3, 8 do
+        table.insert(msg_bits, t[j])
+      end
+    elseif c == string.byte("+") then
+      for j = 1, 5 do
+        table.insert(msg_bits, 1)
+      end
+      table.insert(msg_bits, 0)
+    elseif c == string.byte("/") then
+      for j = 1, 6 do
+        table.insert(msg_bits, 1)
+      end
+    elseif c >= 65 and c <= string.byte("Z") then
+      local t = toBits(c - 65)
+      for j = 3, 8 do
+        table.insert(msg_bits, t[j])
+      end
+    elseif c >= 97 and c <= string.byte("z") then
+      local t = toBits(c - 71)
+      for j = 3, 8 do
+        table.insert(msg_bits, t[j])
+      end
+    end
+  end
+  for i = 1, #msg_bits / 8 do
+    local n = 0
+    for j = 1, 8 do
+      n = n + (2 ^ (8 - j)) * msg_bits[(i - 1) * 8 + j]
+    end
+    msg = msg .. string.char(n)
+  end
+  return msg
+end
+
+function encode(msg)
+  local b64 = ""
+  for i = 1, math.ceil(#msg / 3) do
+    b64 = b64 .. encodeBlock(msg:sub((i - 1) * 3 + 1, i * 3))
+  end
+  return b64
+end
+
+function decode(b64)
+  local msg = ""
+  for i = 1, #b64 / 4 do
+    msg = msg .. decodeBlock(b64:sub((i - 1) * 4 + 1, i * 4))
+  end
+  return msg
+end
