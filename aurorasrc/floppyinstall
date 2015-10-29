@@ -5,24 +5,43 @@ for i, v in pairs(peripheral.getNames()) do
   end
 end
 if not driveSide then
+  term.setTextColor(colors.white)
+  term.setBackgroundColor(colors.black)
+  term.clear()
+  term.setCursorPos(2, 2)
+  term.write("No disk found")
+  sleep(2)
   return false
 end
 local diskPath = disk.getMountPath(driveSide)
-local gameInfo = aFile.unserializeFile(fs.combine(diskPath, "info"))
-if not gameInfo then
+local appInfo = aFile.unserializeFile(fs.combine(diskPath, "info"))
+if not appInfo then
+  term.setTextColor(colors.white)
+  term.setBackgroundColor(colors.black)
+  term.clear()
+  term.setCursorPos(2, 2)
+  term.write("Invalid app")
+  sleep(2)
   return false
 end
-aUtil.debug("Installing game \""..gameInfo.sID.."\"")
-local gamePath = fs.combine("games", gameInfo.sID)
-if not fs.exists(gamePath) then
-  fs.makeDir(gamePath)
-  aUtil.debug("  Game directory created")
+local prettyname = appInfo.sName and appInfo.sName .. " (" .. appInfo.sID .. ")" or appInfo.sID
+aUtil.debug("Installing " .. prettyname)
+local appPath = fs.combine("apps", appInfo.sID)
+if not fs.exists(appPath) then
+  fs.makeDir(appPath)
+  aUtil.debug("  App directory created")
 end
 
 for i, v in pairs(fs.list(diskPath)) do
   aUtil.debug("  Copying file \""..v.."\"")
-  pcall(fs.delete, fs.combine(gamePath, v))
-  fs.copy(fs.combine(diskPath, v), fs.combine(gamePath, v))
+  pcall(fs.delete, fs.combine(appPath, v))
+  fs.copy(fs.combine(diskPath, v), fs.combine(appPath, v))
 end
 
+term.setTextColor(colors.black)
+term.setBackgroundColor(colors.white)
+term.clear()
+term.setCursorPos(2, 2)
+term.write(prettyname .. " installed")
+sleep(2)
 return true

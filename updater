@@ -110,6 +110,9 @@ for k, v in pairs(files) do
 	end
 	filesDownloaded = filesDownloaded + 1
 end
+if not fs.exists("apps") then
+	fs.makeDir("apps")
+end
 clear()
 term.setCursorPos(2, 2)
 print("Press any key to continue.")
