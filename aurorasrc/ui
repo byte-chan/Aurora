@@ -186,5 +186,9 @@ while true do
         uistate.menuVisible = not uistate.menuVisible
       end
     end
+  elseif ev[1] == "key" then
+    if ev[2] == keys.leftCtrl then
+      uistate.menuVisible = not uistate.menuVisible
+    end
   end
 end
