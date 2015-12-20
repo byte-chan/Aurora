@@ -6,6 +6,10 @@
     aUtil.doFile(".aurora/floppyinstall")
   end},
   {label = "Shell",                func = function()
+    term.setBackgroundColor(colors.black)
+    term.setTextColor(colors.white)
+    term.clear()
+    term.setCursorPos(1, 1)
     aUtil.doFile("rom/programs/shell")
   end},
   {label = "UI config",            func = aurora.uiSettings},
