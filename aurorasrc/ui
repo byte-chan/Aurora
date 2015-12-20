@@ -152,6 +152,7 @@ local function redraw()
   if not aurora.config.debug then
     term.current().setVisible(false)
   end
+  term.setCursorBlink(false)
   redrawWallpaper()
   redrawMenuBar()
   redrawMenuButton()
