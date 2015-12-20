@@ -89,7 +89,8 @@ while true do
       selected = selected + 1
     elseif ev[2] == keys.enter then
       local ok, err = aUtil.doFile_env({app = {
-        execPath = fs.combine("apps", appNameToID[ appNames[selected] ])
+        execPath = fs.combine("apps", appNameToID[ appNames[selected] ]),
+        dataPath = fs.combine("appdata", appNameToID[ appNames[selected] ])
       }}, fs.combine(fs.combine("apps", appNameToID[ appNames[selected] ]), apps[ appNameToID[ appNames[selected] ] ].sExecute))
       if aurora.config.debug then
         sleep(2)
