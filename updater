@@ -113,6 +113,9 @@ end
 if not fs.exists("apps") then
 	fs.makeDir("apps")
 end
+os.reboot()
+
+-- old end code
 clear()
 term.setCursorPos(2, 2)
 print("Press any key to continue.")
