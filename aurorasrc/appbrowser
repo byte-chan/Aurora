@@ -21,7 +21,7 @@ local function startApp(appid)
     local ok = {aUtil.doFile_env({app = {
       execPath = fs.combine("apps", appid),
       dataPath = fs.combine("appdata", appid)
-    }}, fs.combine(fs.combine("apps", appid), apps[ appNameToID[ appNames[selected] ] ].sExecute))}
+    }}, fs.combine(fs.combine("apps", appid), apps[appid].sExecute))}
     return unpack(ok)
   end
 end
