@@ -44,7 +44,7 @@ function preproc(lines, depth)
       for line in io.lines(v:sub(12)) do
         table.insert(_lines, line)
       end
-      table.insert(outparts, preproc(_lines, depth + 1))
+      table.insert(outparts, preproc(_lines, (depth or 0) + 1))
     else
       table.insert(outparts, v)
     end
