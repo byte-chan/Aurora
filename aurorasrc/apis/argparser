@@ -1,0 +1,50 @@
+function parse(rawargs, opts)
+  local arg_n = 1
+
+  local args = {}
+  local extra_args = {}
+
+  local parse_opts = true
+  local found_invalid = {}
+
+  local function arg()
+    return rawargs[arg_n]
+  end
+
+  while arg_n <= #rawargs do
+    if parse_opts then
+      if arg() == "--" or arg():sub(1, 1) ~= "-" then
+        parse_opts = false
+      else
+        local opt_valid = false
+        for opt1, opt2 in pairs(opts) do
+          if (opt2[1] and arg() == opt2[1]) then
+            opt_valid = true
+            if opt2.default ~= nil then
+              args[opt1] = opt2.default
+            else
+              arg_n = arg_n + 1
+              args[opt1] = arg()
+            end
+          elseif (opt2[2] and arg() == opt2[2])
+          or (opt2[2] and arg():sub(1, #opt2[2] + 1) == opt2[2] .. "=")
+          then
+            opt_valid = true
+            if opt2.default ~= nil then
+              args[opt1] = opt2.default
+            else
+              args[opt1] = arg():sub(#opt2[2] + 2)
+            end
+          end
+        end
+        if not opt_valid then
+          table.insert(found_invalid, {arg_n, arg()})
+        end
+      end
+    else
+      table.insert(extra_args, arg())
+    end
+    arg_n = arg_n + 1
+  end
+  return args, extra_args, found_invalid
+end
