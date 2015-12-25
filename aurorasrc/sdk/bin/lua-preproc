@@ -9,44 +9,51 @@ local input = shell.resolve(args[1])
 local output = args[2] and shell.resolve(args[2])
 or input .. ".out"
 
+--[[
 local f = fs.open(input, "r")
 local inp = f.readAll()
 f.close()
 
-local lines = {}
+local _lines = {}
 local tmp = ""
 for i = 1, #inp do
   if inp:sub(i, i) == "\n" then
-    table.insert(lines, tmp)
+    table.insert(_lines, tmp)
     tmp = ""
   else
     tmp = tmp .. inp:sub(i, i)
   end
 end
-table.insert(lines, tmp)
+table.insert(_lines, tmp)
 sleep(0)
+]]
 
-local oldShellDir = shell.dir()
-shell.setDir(fs.getDir(input))
-
-local outparts = {}
-for i, v in ipairs(lines) do
-  if v:sub(1, 11) == "--#include " then
-    local f = fs.open(shell.resolve(v:sub(12)), "r")
-    if not f then
-      printError(v:sub(12)..": File not found")
-      return
+local preproc
+function preproc(lines)
+  local oldShellDir = shell.dir()
+  shell.setDir(fs.getDir(input))
+  local outparts = {}
+  for i, v in ipairs(lines) do
+    if v:sub(1, 11) == "--#include " then
+      local _lines = {}
+      for line in io.lines(v:sub(12)) do
+        table.insert(_lines, line)
+      end
+      table.insert(outparts, preproc(_lines))
+    else
+      table.insert(outparts, v)
     end
-    table.insert(outparts, f.readAll())
-    f.close()
-  else
-    table.insert(outparts, v)
   end
+  shell.setDir(oldShellDir)
+  return table.concat(outparts, "\n")
 end
 
-shell.setDir(oldShellDir)
+local lines = {}
+for line in io.lines(input) do
+  table.insert(lines, line)
+end
 
-local out = table.concat(outparts, "\n")
+local out = preproc(lines)
 
 local f = fs.open(output, "w")
 f.write(out)
