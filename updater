@@ -2,6 +2,7 @@ local files = {
 	["startup"] = "startup"
 }
 local aurorasrc = {
+	"apis/argparser",
 	"apis/base64",
 	"apis/img",
 	"sdk/bin/lua-preproc",
