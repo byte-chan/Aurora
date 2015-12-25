@@ -5,6 +5,8 @@ if #args < 1 then
   return
 end
 
+local maxdepth = 32
+
 local input = shell.resolve(args[1])
 local output = args[2] and shell.resolve(args[2])
 or input .. ".out"
@@ -29,7 +31,10 @@ sleep(0)
 ]]
 
 local preproc
-function preproc(lines)
+function preproc(lines, depth)
+  if depth and depth >= maxdepth then
+    return ""
+  end
   local oldShellDir = shell.dir()
   shell.setDir(fs.getDir(input))
   local outparts = {}
@@ -39,7 +44,7 @@ function preproc(lines)
       for line in io.lines(v:sub(12)) do
         table.insert(_lines, line)
       end
-      table.insert(outparts, preproc(_lines))
+      table.insert(outparts, preproc(_lines, depth + 1))
     else
       table.insert(outparts, v)
     end
