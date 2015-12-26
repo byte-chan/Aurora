@@ -41,7 +41,7 @@ function preproc(lines, depth)
   for i, v in ipairs(lines) do
     if v:sub(1, 11) == "--#include " then
       local _lines = {}
-      for line in io.lines(v:sub(12)) do
+      for line in io.lines(shell.resolve(v:sub(12))) do
         table.insert(_lines, line)
       end
       table.insert(outparts, preproc(_lines, (depth or 0) + 1))
