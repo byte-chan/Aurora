@@ -17,6 +17,9 @@ local menuItems = {}
 local menuWidth = 0
 local function refreshMenu()
   menuItems = aFile.unserializeFile(".aurora/menuItems")
+  for i, v in pairs(aFile.unserializeFile(".aurora/userMenu") or {}) do
+    menuItems[i] = v
+  end
   for i, v in pairs(menuItems) do
     if #v.label > menuWidth then
       menuWidth = #v.label
