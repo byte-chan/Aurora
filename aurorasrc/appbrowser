@@ -5,7 +5,7 @@ local function rebuildAppList()
   appNames = {}
   appNameToID = {}
   for i, v in pairs(fs.list("apps")) do
-    apps[v] = aFile.unserializeFile(fs.combine(fs.combine("apps", v), "info"))
+    apps[v] = aFile.unserializeFile(fs.combine(fs.combine("apps", v), "aInfo")) or aFile.unserializeFile(fs.combine(fs.combine("apps", v), "info"))
     if apps[v] then
       local prettyName = apps[v].sName and apps[v].sName .. " (" .. v .. ")" or v
       table.insert(appNames, prettyName)
