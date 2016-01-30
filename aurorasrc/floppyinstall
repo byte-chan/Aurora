@@ -14,7 +14,7 @@ if not driveSide then
   return false
 end
 local diskPath = disk.getMountPath(driveSide)
-local appInfo = aFile.unserializeFile(fs.combine(diskPath, "info"))
+local appInfo = aFile.unserializeFile(fs.combine(diskPath, "aInfo")) or aFile.unserializeFile(fs.combine(diskPath, "info"))
 if not appInfo then
   term.setTextColor(colors.white)
   term.setBackgroundColor(colors.black)
