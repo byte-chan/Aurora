@@ -1,5 +1,10 @@
 setmetatable(getfenv(), {__index = _G})
 
+local function checkArg(argtype, argn, arg) -- a function, don't ask
+	if type(arg) ~= argtype then
+		error("invalid arg #"..argn.." ("..argtype.." expected, got "..type(arg)..")", 1)
+	end
+end
 
 -- mountable fs (aka hell)
 local proxy = {}
