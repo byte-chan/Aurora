@@ -18,7 +18,8 @@ local aurorasrc = {
 	"menuItems",
 	"settingsUI",
 	"ui",
-	"wallpaper"
+	"wallpaper",
+	"update",
 }
 
 for i, v in ipairs(aurorasrc) do
