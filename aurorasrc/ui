@@ -5,12 +5,68 @@ local config
 local makeUiConfig
 
 function aurora.uiSettings()
-  aUtil.doFile("rom/programs/edit", "/.aurora/uiConfig")
-  cachedWallpaper = nil
-  local newconfig = aFile.unserializeFile(".aurora/uiConfig")
-  if newconfig then
-    config = updateConfig(newconfig, makeUiConfig())
+  -- old "code" -- aUtil.doFile("rom/programs/edit", "/.aurora/uiConfig")
+  local function redraw()
+    local w, h = term.getSize()
+    term.setBackgroundColor(colors.white)
+    term.clear()
+    term.setCursorPos(1, 1)
+    term.setBackgroundColor(colors.lightGray)
+    term.setTextColor(colors.black)
+    term.clearLine()
+    aUtil.cwrite("UI config", 1)
+    term.setBackgroundColor(colors.white)
+    term.setCursorPos(2, 3)
+    term.write("Menu button")
+    term.setCursorPos(4, 4)
+    term.write("Text")
+    term.setCursorPos(w - #config.text.menubutton, 3)
+    term.write(config.text.menubutton)
+    term.setCursorPos(4, 5)
+    term.write("Inactive")
+    term.setCursorPos(w - 6, 5)
+    term.setTextColor(config.theme.menubutton.fg1)
+    term.setBackgroundColor(config.theme.menubutton.bg1)
+    term.write(" Text ")
+    term.setTextColor(colors.black)
+    term.setBackgroundColor(colors.white)
+    term.setCursorPos(4, 6)
+    term.write("Active")
+    term.setCursorPos(w - 6, 6)
+    term.setTextColor(config.theme.menubutton.fg2)
+    term.setBackgroundColor(config.theme.menubutton.bg2)
+    term.write(" Text ")
+    term.setTextColor(colors.black)
+    term.setBackgroundColor(colors.white)
+    term.setCursorPos(2, 8)
+    term.write("Menu bar")
+    term.setCursorPos(w - 4, 8)
+    term.setBackgroundColor(config.theme.menubar.bg)
+    term.write("    ")
+    term.setBackgroundColor(colors.white)
+    term.setCursorPos(2, 10)
+    term.write("Menu items")
+    term.setCursorPos(w - 11, 10)
+    term.setTextColor(config.theme.menu.fg)
+    term.setBackgroundColor(config.theme.menu.bg)
+    term.write(" Menu item ")
+    term.setTextColor(colors.black)
+    term.setBackgroundColor(colors.white)
   end
+  while true do
+    local ev = {os.pullEventRaw()}
+    if ev[1] == "terminate" then
+      break
+    elseif ev[1] == "mouse_click" then
+    end
+  end
+  
+  cachedWallpaper = nil
+  --local newconfig = aFile.unserializeFile(".aurora/uiConfig")
+  --if newconfig then
+  --  config = updateConfig(newconfig, makeUiConfig())
+  --end
+  aFile.serializeFile(".aurora/uiConfig", config)
 end
 
 local menuItems = {}
