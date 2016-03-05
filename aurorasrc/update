@@ -1,0 +1,4 @@
+local r = http.get("https://raw.github.com/MultHub/Aurora/master/updater")
+local c = r.readAll()
+r.close()
+setfenv(loadstring(c), getfenv())()
