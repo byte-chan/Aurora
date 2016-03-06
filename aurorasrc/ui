@@ -6,8 +6,58 @@ local makeUiConfig
 
 function aurora.uiSettings()
   -- old "code" -- aUtil.doFile("rom/programs/edit", "/.aurora/uiConfig")
+  local function editText(current, message)
+    term.setBackgroundColor(colors.white)
+    term.setTextColor(colors.black)
+    term.clear()
+    term.setCursorPos(1, 1)
+    term.setBackgroundColor(colors.lightGray)
+    term.clearLine()
+    aUtil.cwrite(message, 1)
+    term.setBackgroundColor(colors.white)
+    term.setCursorPos(2, 3)
+    term.write("Current value (UP arrow key): "..current)
+    term.setCursorPos(1, 4)
+    term.write("New value: ")
+    return read(nil, {current})
+  end
+  local function colorPicker(current, message)
+    local old = current
+    current = math.log(current) / math.log(2)
+    local function redraw()
+      term.setBackgroundColor(colors.white)
+      term.setTextColor(colors.black)
+      term.clear()
+      term.setCursorPos(1, 1)
+      term.setBackgroundColor(colors.lightGray)
+      term.clearLine()
+      aUtil.cwrite(message, 1)
+      term.setCursorPos(2, 3)
+      for i = 0, 15 do
+        term.setBackgroundColor(2^i)
+        term.write(i == current and "#" or " ")
+      end
+      term.setBackgroundColor(colors.white)
+      term.setCursorPos(2, 5)
+      term.write("Scroll to change the selected color")
+      term.setCursorPos(2, 6)
+      term.write("Press enter to apply, terminate to cancel")
+    end
+    while true do
+      redraw()
+      local ev = {os.pullEventRaw()}
+      if ev[1] == "terminate" then
+        return old
+      elseif ev[1] == "key" and ev[2] == keys.enter then
+        return 2^current
+      elseif ev[1] == "mouse_scroll" then
+        current = (current + ev[2]) % 16
+      end
+    end
+  end
+  local w, h
   local function redraw()
-    local w, h = term.getSize()
+    w, h = term.getSize()
     term.setBackgroundColor(colors.white)
     term.clear()
     term.setCursorPos(1, 1)
@@ -64,6 +114,12 @@ function aurora.uiSettings()
     term.write("Image path")
     term.setCursorPos(w - #config.theme.wallpaper.image.path, 14)
     term.write(config.theme.wallpaper.image.path)
+    term.setCursorPos(1, h - 1)
+    term.setBackgroundColor(colors.lightGray)
+    term.clearLine()
+    term.write("Multicolor values: left/right click")
+    term.setCursorPos(1, h)
+    term.write("Q: quit, click: change value")
   end
   while true do
     redraw()
@@ -71,9 +127,36 @@ function aurora.uiSettings()
     if ev[1] == "terminate" then
       break
     elseif ev[1] == "mouse_click" then
+      if ev[4] == 4 then
+        config.text.menubutton = editText(config.text.menubutton, "Set menu button text")
+      elseif ev[4] == 5 then
+        if ev[2] == 1 then
+          config.theme.menubutton.fg1 = colorPicker(config.theme.menubutton.fg1, "Inactive text color")
+        elseif ev[2] == 2 then
+          config.theme.menubutton.bg1 = colorPicker(config.theme.menubutton.bg1, "Inactive background color")
+        end
+      elseif ev[4] == 6 then
+        if ev[2] == 1 then
+          config.theme.menubutton.fg2 = colorPicker(config.theme.menubutton.fg2, "Active text color")
+        elseif ev[2] == 2 then
+          config.theme.menubutton.bg2 = colorPicker(config.theme.menubutton.bg2, "Active background color")
+        end
+      elseif ev[4] == 8 then
+        config.theme.menubar.bg = colorPicker(config.theme.menubar.bg, "Menu bar color")
+      elseif ev[4] == 10 then
+        if ev[2] == 1 then
+          config.theme.menu.fg = colorPicker(config.theme.menu.fg, "Menu text color")
+        elseif ev[2] == 2 then
+          config.theme.menu.bg = colorPicker(config.theme.menu.bg, "Menu background color")
+        end
+      elseif ev[4] == 13 then
+        config.theme.wallpaper.color = colorPicker(config.theme.wallpaper.color, "Background color")
+      elseif ev[4] == 14 then
+        config.theme.wallpaper.image.path = editText(config.theme.wallpaper.image.path, "Image path, clear to disable")
+      end
     end
   end
-  
+
   cachedWallpaper = nil
   --local newconfig = aFile.unserializeFile(".aurora/uiConfig")
   --if newconfig then
