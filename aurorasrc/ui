@@ -54,6 +54,7 @@ function aurora.uiSettings()
     term.setBackgroundColor(colors.white)
   end
   while true do
+    redraw()
     local ev = {os.pullEventRaw()}
     if ev[1] == "terminate" then
       break
