@@ -119,6 +119,7 @@ function aurora.uiSettings()
     term.clearLine()
     term.write("Multicolor values: left/right click")
     term.setCursorPos(1, h)
+    term.clearLine()
     term.write("Q: quit, click: change value")
   end
   while true do
