@@ -115,7 +115,7 @@ function makeUiConfig()
   }
 end
 
-local config = aFile.unserializeFile(".aurora/uiConfig") or {}
+config = aFile.unserializeFile(".aurora/uiConfig") or {}
 
 local uistate = {
   menuVisible = false,
