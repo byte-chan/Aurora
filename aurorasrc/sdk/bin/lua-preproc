@@ -45,6 +45,14 @@ function preproc(lines, depth)
         table.insert(_lines, line)
       end
       table.insert(outparts, preproc(_lines, (depth or 0) + 1))
+    elseif v:sub(1, 11) == "--#includeapi " then
+      table.insert(outparts, "_api("..fs.getName(v:sub(12))..", function()")
+      local _lines = {}
+      for line in io.lines(shell.resolve(v:sub(12))) do
+        table.insert(_lines, line)
+      end
+      table.insert(outparts, preproc(_lines, (depth or 0) + 1))
+      table.insert(outparts, "end)")
     else
       table.insert(outparts, v)
     end
@@ -58,7 +66,16 @@ for line in io.lines(input) do
   table.insert(lines, line)
 end
 
-local out = preproc(lines)
+local out = [[
+local function _api(name, fn)
+  local env = setmetatable({}, {__index = getfenv()})
+  setfenv(fn, env)()
+  _G[name] = {}
+  for k, v in pairs(env) do
+    _G[name][k] = v
+  end
+end
+]] .. preproc(lines)
 
 local f = fs.open(output, "w")
 f.write(out)
