@@ -30,6 +30,8 @@ local function redraw()
 	if setVis then
 		setVis(false)
 	end
+	term.setTextColor(colors.white)
+	term.setBackgroundColor(colors.black)
 	term.clear()
 	for i = 1, h - 1 do
 		term.setCursorPos(1, i)
