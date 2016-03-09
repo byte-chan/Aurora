@@ -1,0 +1,62 @@
+Aurora help
+
+  PQYMALUWTYTABYETAAT (possible questions you might ask later unless we tell you the answer before you even think about asking them)
+
+    Q: Why choose Aurora?
+    A: Wait, that's actually a good question...
+
+    Q: What IS Aurora?
+    A: Aurora is yet another ComputerCraft <del>
+    console</del><ins>operating system</ins> -
+    read the README.md.
+
+    Q: Why aren't you just writing everything on 1
+    line?
+    A: Because you would have to scroll left and right to read everything, and guess who hates scrolling left and right to read everything? EVERYONE.
+
+    Q: How to game?
+    A: Depends. Install or make?
+
+    Q: How to install game?
+    A:
+      1. Get floppy disk
+      2. Stick into drive
+      3. Open menu
+      4. 'Floppy Install'
+      5. Open menu again
+      6. 'App Browser'
+      7. Find game
+      8. Press enter
+
+    Q: How to make game?
+    A: https://github.com/MultHub/Aurora/wiki/how-to-make-game
+       I'm serious, read it.
+
+    Q: Who is responsible for this?
+    A: MultMine (MultHub on <del>GitHub</del><ins>gitskreb</ins>)
+
+  The Aurora UI explained
+
+    App Browser
+    Where you find your apps, yes you can delete.
+
+    Floppy Install
+    Install an app from a floppy disk. Yeeeeeeeeeee
+
+    Shell
+    It's just rom/programs/shell.
+
+    UI config
+    Where you can mess with the colors and things.
+
+    Aurora config
+    Yay, rom/programs/edit!
+
+    Update
+    Install the latest version ._.
+
+    Credits
+    Look at names scrolling up!
+
+    Reboot and Shutdown
+    WELL GUESS WHAT GENIUS
