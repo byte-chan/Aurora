@@ -21,7 +21,7 @@ local aurorasrc = {
 	"wallpaper",
 	"update",
 	"pager",
-	"help",
+	"help.txt",
 }
 
 for i, v in ipairs(aurorasrc) do

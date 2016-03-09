@@ -15,7 +15,7 @@
   {label = "UI config",            func = aurora.uiSettings},
   {label = "Aurora config",        func = aurora.settingsUI},
   {label = "Help",                 func = function()
-    aUtil.doFile(".aurora/pager", {title = "Aurora help", data = aFile.readFile(".aurora/help")})
+    aUtil.doFile(".aurora/pager", {title = "Aurora help", data = aFile.readFile(".aurora/help.txt")})
   end},
   {label = "Update",               func = function()
     local r = http.get("https://raw.github.com/MultHub/Aurora/master/updater")
