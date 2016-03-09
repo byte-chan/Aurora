@@ -31,9 +31,31 @@ function doFile_env(env, path, ...)
   if env then
     fenv = setmetatable(env, {__index = getfenv()})
   end
-  return pcall(setfenv(fn, fenv or getfenv()), ...)
+  local ok = {pcall(setfenv(fn, fenv or getfenv()), ...)}
+  if not ok[1] and aurora.config.debug then
+    debug(path.." crashed: "..ok[2])
+    term.setBackgroundColor(colors.black)
+    printError("Debug: "..ok[2])
+    print("Press any key to continue")
+  end
+  return unpack(ok)
 end
 
 function doFile(path, ...)
   return doFile_env(nil, path, ...)
+end
+
+function split(str, chr)
+  local parts = {}
+  local tmp = ""
+  for i = 1, #str do
+    if str:sub(i, i) == chr then
+      table.insert(parts, tmp)
+      tmp = ""
+    else
+      tmp = tmp .. str:sub(i, i)
+    end
+  end
+  table.insert(parts, tmp)
+  return parts
 end

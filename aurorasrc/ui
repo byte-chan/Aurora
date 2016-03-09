@@ -300,12 +300,12 @@ local function redrawMenu()
   term.setBackgroundColor(menu.bg)
   for i, v in ipairs(menuItems) do
     term.setCursorPos(1, termh - (#menuItems - i) - 1)
-    term.write(" "..v.label..string.rep(" ", menuWidth - #v.label + 1))
+    term.write((uistate.menuPos == i and ">" or " ")..v.label..string.rep(" ", menuWidth - #v.label + 1))
   end
 end
 
 local function redraw()
-  if not aurora.config.debug then
+  if not aurora.config.debug and term.current().setVisible then
     term.current().setVisible(false)
   end
   term.setCursorBlink(false)
@@ -315,7 +315,7 @@ local function redraw()
   if uistate.menuVisible then
     redrawMenu()
   end
-  if not aurora.config.debug then
+  if not aurora.config.debug and term.current().setVisible then
     term.current().setVisible(true)
   end
 end
@@ -341,11 +341,24 @@ while true do
       if ev[3] >= 1 and ev[3] <= #config.text.menubutton + 2
       and ev[4] == termh then
         uistate.menuVisible = not uistate.menuVisible
+        uistate.menuPos = nil
       end
     end
   elseif ev[1] == "key" then
     if ev[2] == keys.leftCtrl then
       uistate.menuVisible = not uistate.menuVisible
+      uistate.menuPos = nil
+    elseif ev[2] == keys.up then
+      uistate.menuPos = ((uistate.menuPos or 1) - 2) % #menuItems + 1
+    elseif ev[2] == keys.down then
+      uistate.menuPos = (uistate.menuPos or 0) % #menuItems + 1
+    elseif ev[2] == keys.enter then
+      if uistate.menuVisible then
+        if menuItems[uistate.menuPos] then
+          menuItems[uistate.menuPos].func()
+        end
+        uistate.menuVisible = false
+      end
     end
   end
 end

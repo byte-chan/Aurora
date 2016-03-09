@@ -1,0 +1,89 @@
+local args = {...}
+
+if #args < 1 then
+	print("Usage: pager <path>")
+	print("Advanced usage: specify a table as argument - "..textutils.serialize({
+		data = "text to display",
+		title = "optional, will display a message in bottom left",
+	}))
+	return
+end
+
+local arg = {}
+
+if type(args[1]) == "string" then
+	arg.data  = aFile.readFile(shell.resolve(args[1]))
+	arg.title = args[1]
+else
+	arg = args[1]
+end
+
+local w, h = term.getSize()
+
+local xs, ys = 0, 0
+
+local lines = aUtil.split(arg.data, "\n")
+
+local setVis = term.current().setVisible
+
+local function redraw()
+	if setVis then
+		setVis(false)
+	end
+	term.clear()
+	for i = 1, h - 1 do
+		term.setCursorPos(1, i)
+		if lines[i + ys] then
+			term.write(lines[i + ys]:sub(xs + 1))
+		else
+			term.write("~")
+		end
+	end
+	term.setCursorPos(1, h)
+	term.write((arg.title or "no info")..(ys == #lines - h + 1 and " (END)" or ""))
+	local str = "+"..ys..","..xs
+	term.setCursorPos(w - #str + 1, h)
+	term.write(str)
+	if setVis then
+		setVis(true)
+	end
+end
+
+while true do
+	redraw()
+	local ev = {os.pullEventRaw()}
+	if ev[1] == "terminate" then
+		return
+	elseif ev[1] == "term_resize" then
+		w, h = term.getSize()
+	elseif ev[1] == "key" then
+		if ev[2] == keys.q then
+			sleep(0)
+			return
+		elseif ev[2] == keys.up then
+			if ys > 0 then
+				ys = ys - 1
+			end
+		elseif ev[2] == keys.down then
+			if ys < #lines - h + 1 then
+				ys = ys + 1
+			end
+		elseif ev[2] == keys.pageUp then
+			ys = ys - h + 1
+			if ys < 0 then
+				ys = 0
+			end
+		elseif ev[2] == keys.pageDown then
+			ys = ys + h - 1
+			if ys > #lines - h + 1 then
+				ys = #lines - h + 1
+			end
+		elseif ev[2] == keys.left then
+			if xs > 0 then
+				xs = xs - 1
+			end
+		elseif ev[2] == keys.right then
+			xs = xs + 1
+		end
+	end
+end

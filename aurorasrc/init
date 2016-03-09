@@ -78,7 +78,9 @@ function fs.move(path, target)
 	local p2 = fs.getProxy(target)
 	if p1 ~= p2 then
 		if p1.isDir(fs.getProxiedPath(path)) then
-			error("i'm a lazy bish, don't move dirs now", 1)
+			fs.copy(path, target)
+			p1.delete(fs.getProxiedPath(path))
+			return
 		end
 		if p2.exists(fs.getProxiedPath(target)) then
 			error("File exists", 1)
@@ -96,6 +98,22 @@ function fs.move(path, target)
 		p1.move(fs.getProxiedPath(path), fs.getProxiedPath(target))
 	end
 end
+function fs.recursiveCopy(p1, p2, pA, pB)
+	for i, v in ipairs(p1.list(pA)) do
+		if p1.isDir(fs.combine(pA, v)) then
+			if not p2.exists(fs.combine(pB, v)) then
+				p2.makeDir(fs.combine(pB, v))
+			end
+			fs.recursiveCopy(p1, p2, fs.combine(pA, v), fs.combine(pB, v))
+		else
+			local f1 = p1.open(fs.combine(pA, v), "r")
+			local f2 = p2.open(fs.combine(pB, v), "w")
+			f2.write(f1.readAll())
+			f1.close()
+			f2.close()
+		end
+	end
+end
 function fs.copy(path, target)
 	path = fs.cleanPath(path)
 	target = fs.cleanPath(target)
@@ -103,7 +121,8 @@ function fs.copy(path, target)
 	local p2 = fs.getProxy(target)
 	if p1 ~= p2 then
 		if p1.isDir(fs.getProxiedPath(path)) then
-			error("i'm a lazy bish, don't copy dirs now", 1)
+			fs.recursiveCopy(p1, p2, fs.getProxiedPath(path), fs.getProxiedPath(target))
+			return
 		end
 		if p2.exists(fs.getProxiedPath(target)) then
 			error("File exists", 1)
@@ -207,15 +226,15 @@ for i in pairs(nativefs) do
 end
 function fs.appfsProxy(structure)
 	local function getFile(path)
-  	local file = structure
-  	for part in string.gmatch(path, "[^/]+") do
-  		if not file.files[part] then
-  			return nil
-  		end
-  		file = file.files[part]
-  	end
-  	return file
-  end
+		local file = structure
+		for part in string.gmatch(path, "[^/]+") do
+			if not file.files[part] then
+				return nil
+			end
+			file = file.files[part]
+		end
+		return file
+	end
 	local p = {}
 	function p.getDrive()
 		return "sys"
@@ -419,6 +438,16 @@ function fs.tmpfsProxy(structure, writeCallback, driveName)
 			parent = parent.files[part]
 		end
 	end
+	function p.copy(path, target)
+		if p.isDir(path) then
+			fs.recursiveCopy(p, p, path, target) -- omg i'm lazy
+		end
+	end
+	function p.move(path, target)
+		-- cheap but should work ._.
+		getFile(fs.getDir(target)).files[fs.getName(target)] = getFile(fs.getDir(path)).files[fs.getName(path)]
+		p.delete(path)
+	end
 	function p.open(path, mode)
 		local handle = {buffer = "", closed = false}
 		if mode == "w" or mode == "a" then
@@ -523,18 +552,18 @@ local sysStructure = {
 		},
 		label = {
 			read = function()
-  			return os.getComputerLabel() or ""
-  		end,
-  		write = function(data)
-  			data = data:gsub("\n", "")
-  			if data == "" then
-  				os.setComputerLabel(nil)
-  			else
-  				os.setComputerLabel(data)
-  			end
-  		end,
-  	},
-  },
+				return os.getComputerLabel() or ""
+			end,
+			write = function(data)
+				data = data:gsub("\n", "")
+				if data == "" then
+					os.setComputerLabel(nil)
+				else
+					os.setComputerLabel(data)
+				end
+			end,
+		},
+	},
 }
 fs.proxy("sys", fs.appfsProxy(sysStructure))
 fs.proxy("tmp", fs.tmpfsProxy())

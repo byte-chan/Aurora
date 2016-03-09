@@ -21,9 +21,15 @@ local aurorasrc = {
 	"wallpaper",
 	"update",
 }
+local bin = {
+	"pager",
+}
 
 for i, v in ipairs(aurorasrc) do
 	files["aurorasrc/"..v] = ".aurora/"..v
+end
+for i, v in ipairs(bin) do
+	files["bin/"..v] = "bin/"..v
 end
 
 local githubUser    = "MultHub"
