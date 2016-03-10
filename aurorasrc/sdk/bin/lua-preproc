@@ -26,25 +26,32 @@ function preproc(lines, depth)
   shell.setDir(fs.getDir(input))
   local outparts = {}
   local cond = 0
+  local condWasTrue = 0
   local skipFalse = nil
   for i, v in ipairs(lines) do
     if v:sub(1, 6) == "--#if " then
       cond = cond + 1
-      if not skipFalse and not loadstring("return "..v:sub(7))() then
-        skipFalse = cond
-      end
-    elseif v:sub(1, 10) == "--#elseif " then
-      if (not skipFalse or cond == skipFalse) then
+      if not skipFalse then
         if not loadstring("return "..v:sub(7))() then
           skipFalse = cond
         else
+          condWasTrue = condWasTrue + 1
+        end
+      end
+    elseif v:sub(1, 10) == "--#elseif " then
+      if (not skipFalse or cond == skipFalse) then
+        if not loadstring("return "..v:sub(11))() then
+          skipFalse = cond
+        else
           skipFalse = nil
+          condWasTrue = true
         end
       end
     elseif v:sub(1, 7) == "--#else" then
       if not skipFalse or cond == skipFalse then
-        if skipFalse then
+        if cond > condWasTrue then
           skipFalse = nil
+          condWasTrue = cond
         else
           skipFalse = cond
         end
@@ -53,6 +60,9 @@ function preproc(lines, depth)
       cond = cond - 1
       if skipFalse and cond < skipFalse then
         skipFalse = nil
+        if condWasTrue == cond then
+          condWasTrue = condWasTrue - 1
+        end
       end
     elseif not skipFalse then
       if v:sub(1, 11) == "--#include " then
