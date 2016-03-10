@@ -33,6 +33,22 @@ function preproc(lines, depth)
       if not skipFalse and not loadstring("return "..v:sub(7))() then
         skipFalse = cond
       end
+    elseif v:sub(1, 10) == "--#elseif " then
+      if (not skipFalse or cond == skipFalse) then
+        if not loadstring("return "..v:sub(7))() then
+          skipFalse = cond
+        else
+          skipFalse = nil
+        end
+      end
+    elseif v:sub(1, 7) == "--#else" then
+      if not skipFalse or cond == skipFalse then
+        if skipFalse then
+          skipFalse = nil
+        else
+          skipFalse = cond
+        end
+      end
     elseif v:sub(1, 8) == "--#endif" then
       cond = cond - 1
       if skipFalse and cond < skipFalse then
