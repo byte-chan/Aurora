@@ -39,7 +39,7 @@ function aurora.uiSettings()
       end
       term.setBackgroundColor(colors.white)
       term.setCursorPos(2, 5)
-      term.write("Scroll to change the selected color")
+      term.write("Scroll/arrow keys to change the selected color")
       term.setCursorPos(2, 6)
       term.write("Press enter to apply, terminate to cancel")
     end
@@ -50,11 +50,25 @@ function aurora.uiSettings()
         return old
       elseif ev[1] == "key" and ev[2] == keys.enter then
         return 2^current
+      elseif ev[1] == "key" and ev[2] == keys.left then
+        current = (current - 1) % 16
+      elseif ev[1] == "key" and ev[2] == keys.right then
+        current = (current + 1) % 16
       elseif ev[1] == "mouse_scroll" then
         current = (current + ev[2]) % 16
       end
     end
   end
+  local ymap = {
+    4,
+    5,
+    6,
+    8,
+    10,
+    13,
+    14,
+  }
+  local sel = 1
   local w, h
   local function redraw()
     w, h = term.getSize()
@@ -114,46 +128,93 @@ function aurora.uiSettings()
     term.write("Image path")
     term.setCursorPos(w - #config.theme.wallpaper.image.path, 14)
     term.write(config.theme.wallpaper.image.path)
+    term.setCursorPos(1, ymap[sel])
+    term.write(">")
     term.setCursorPos(1, h - 1)
     term.setBackgroundColor(colors.lightGray)
     term.clearLine()
-    term.write("Multicolor values: left/right click")
+    term.write("Multicolor values: left/right click or 1/2")
     term.setCursorPos(1, h)
     term.clearLine()
     term.write("Q: quit, click: change value")
   end
+  local fnEnter = {
+    [ymap[1]] = function() -- 4
+      config.text.menubutton = editText(config.text.menubutton, "Set menu button text")
+    end,
+    [ymap[2]] = nil, -- 5
+    [ymap[3]] = nil, -- 6
+    [ymap[4]] = function() -- 8
+      config.theme.menubar.bg = colorPicker(config.theme.menubar.bg, "Menu bar color")
+    end,
+    [ymap[5]] = nil, -- 10
+    [ymap[6]] = function() -- 13
+      config.theme.wallpaper.color = colorPicker(config.theme.wallpaper.color, "Background color")
+    end,
+    [ymap[7]] = function() -- 14
+      config.theme.wallpaper.image.path = editText(config.theme.wallpaper.image.path, "Image path, clear to disable")
+    end,
+  }
+  local fn1 = {
+    [ymap[1]] = nil, -- 4
+    [ymap[2]] = function() -- 5
+      config.theme.menubutton.fg1 = colorPicker(config.theme.menubutton.fg1, "Inactive text color")
+    end,
+    [ymap[3]] = function() -- 6
+      config.theme.menubutton.fg2 = colorPicker(config.theme.menubutton.fg2, "Active text color")
+    end,
+    [ymap[4]] = nil, -- 8
+    [ymap[5]] = function() -- 10
+      config.theme.menu.fg = colorPicker(config.theme.menu.fg, "Menu text color")
+    end,
+    [ymap[6]] = nil, -- 13
+    [ymap[7]] = nil, -- 14
+  }
+  local fn2 = {
+    [ymap[1]] = nil, -- 4
+    [ymap[2]] = function() -- 5
+      config.theme.menubutton.bg1 = colorPicker(config.theme.menubutton.bg1, "Inactive background color")
+    end,
+    [ymap[3]] = function() -- 6
+      config.theme.menubutton.bg2 = colorPicker(config.theme.menubutton.bg2, "Active background color")
+    end,
+    [ymap[4]] = nil, -- 8
+    [ymap[5]] = function() -- 10
+      config.theme.menu.bg = colorPicker(config.theme.menu.bg, "Menu background color")
+    end,
+    [ymap[6]] = nil, -- 13
+    [ymap[7]] = nil, -- 14
+  }
   while true do
     redraw()
     local ev = {os.pullEventRaw()}
     if ev[1] == "terminate" or (ev[1] == "key" and ev[2] == keys.q) then
       break
+    elseif ev[1] == "key" then
+      if ev[2] == keys.enter then
+        if fnEnter[ymap[sel]] then
+          fnEnter[ymap[sel]]()
+        end
+      elseif ev[2] == keys.one then
+        if fn1[ymap[sel]] then
+          fn1[ymap[sel]]()
+        end
+      elseif ev[2] == keys.two then
+        if fn2[ymap[sel]] then
+          fn2[ymap[sel]]()
+        end
+      elseif ev[2] == keys.up then
+        sel = (sel - 2) % #ymap + 1
+      elseif ev[2] == keys.down then
+        sel = sel % #ymap + 1
+      end
     elseif ev[1] == "mouse_click" then
-      if ev[4] == 4 then
-        config.text.menubutton = editText(config.text.menubutton, "Set menu button text")
-      elseif ev[4] == 5 then
-        if ev[2] == 1 then
-          config.theme.menubutton.fg1 = colorPicker(config.theme.menubutton.fg1, "Inactive text color")
-        elseif ev[2] == 2 then
-          config.theme.menubutton.bg1 = colorPicker(config.theme.menubutton.bg1, "Inactive background color")
-        end
-      elseif ev[4] == 6 then
-        if ev[2] == 1 then
-          config.theme.menubutton.fg2 = colorPicker(config.theme.menubutton.fg2, "Active text color")
-        elseif ev[2] == 2 then
-          config.theme.menubutton.bg2 = colorPicker(config.theme.menubutton.bg2, "Active background color")
-        end
-      elseif ev[4] == 8 then
-        config.theme.menubar.bg = colorPicker(config.theme.menubar.bg, "Menu bar color")
-      elseif ev[4] == 10 then
-        if ev[2] == 1 then
-          config.theme.menu.fg = colorPicker(config.theme.menu.fg, "Menu text color")
-        elseif ev[2] == 2 then
-          config.theme.menu.bg = colorPicker(config.theme.menu.bg, "Menu background color")
-        end
-      elseif ev[4] == 13 then
-        config.theme.wallpaper.color = colorPicker(config.theme.wallpaper.color, "Background color")
-      elseif ev[4] == 14 then
-        config.theme.wallpaper.image.path = editText(config.theme.wallpaper.image.path, "Image path, clear to disable")
+      if ev[2] == 1 and fnEnter[ev[4]] then
+        fnEnter[ev[4]]()
+      elseif ev[2] == 1 and fn1[ev[4]] then
+        fn1[ev[4]]()
+      elseif ev[2] == 2 and fn2[ev[4]] then
+        fn2[ev[4]]()
       end
     end
   end
