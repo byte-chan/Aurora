@@ -3,7 +3,7 @@ Aurora help
   PQYMALUWTYTABYETAAT (possible questions you might ask later unless we tell you the answer before you even think about asking them)
 
     Q: Why choose Aurora?
-    A: Wait, that's actually a good question...
+    A: Wait, that's actually a gud question...
 
     Q: What IS Aurora?
     A: Aurora is yet another ComputerCraft <del>
