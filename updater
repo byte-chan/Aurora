@@ -5,6 +5,7 @@ local aurorasrc = {
 	"apis/argparser",
 	"apis/base64",
 	"apis/img",
+	"apis/sha",
 	"sdk/bin/lua-preproc",
 	"sdk/init",
 	"aFile",
