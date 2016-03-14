@@ -44,7 +44,7 @@ function preproc(lines, depth)
           skipFalse = cond
         else
           skipFalse = nil
-          condWasTrue = true
+          condWasTrue = cond
         end
       end
     elseif v:sub(1, 7) == "--#else" then
