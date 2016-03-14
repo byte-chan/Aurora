@@ -49,7 +49,7 @@ function preproc(lines, depth)
       end
     elseif v:sub(1, 7) == "--#else" then
       if not skipFalse or cond == skipFalse then
-        if cond > condWasTrue then
+        if cond >= condWasTrue then
           skipFalse = nil
           condWasTrue = cond
         else
