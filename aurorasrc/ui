@@ -130,8 +130,11 @@ function aurora.uiSettings()
     term.write(config.theme.wallpaper.image.path)
     term.setCursorPos(1, ymap[sel])
     term.write(">")
-    term.setCursorPos(1, h - 1)
+    term.setCursorPos(1, h - 2)
     term.setBackgroundColor(colors.lightGray)
+    term.clearLine()
+    term.write("S: save, L: load")
+    term.setCursorPos(1, h - 1)
     term.clearLine()
     term.write("Multicolor values: left/right click or 1/2")
     term.setCursorPos(1, h)
@@ -202,6 +205,26 @@ function aurora.uiSettings()
       elseif ev[2] == keys.two then
         if fn2[ymap[sel]] then
           fn2[ymap[sel]]()
+        end
+      elseif ev[2] == keys.l then
+        local path
+        if aUtil.fileBrowser then
+          path = aUtil.fileBrowser("", "Load theme")
+        else
+          path = editText("", "Load theme")
+        end
+        if path and fs.exists(path) and not fs.isDir(path) then
+          config.theme = aFile.unserializeFile(path)
+        end
+      elseif ev[2] == keys.s then
+        local path
+        if aUtil.fileBrowser then
+          path = aUtil.fileBrowser("", "Save theme", true)
+        else
+          path = editText("", "Save theme")
+        end
+        if path then
+          aFile.serializeFile(path, config.theme)
         end
       elseif ev[2] == keys.up then
         sel = (sel - 2) % #ymap + 1
