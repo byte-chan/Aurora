@@ -1,3 +1,7 @@
+local args = {...}
+
+local quiet = args[1] == "-q"
+
 local files = {
 	["startup"] = "startup"
 }
@@ -28,6 +32,10 @@ local aurorasrc = {
 for i, v in ipairs(aurorasrc) do
 	files["aurorasrc/"..v] = ".aurora/"..v
 end
+
+local extraScripts = {
+	"https://raw.github.com/MultHub/Aurora-apps/master/appsInstaller.lua",
+}
 
 local githubUser    = "MultHub"
 local githubRepo    = "Aurora"
@@ -78,12 +86,6 @@ local function getFile(file, target)
 	return get(githubUser, githubRepo, githubBranch, file, target)
 end
 
-shell.setDir("")
-
-clear()
-
-print(installerName or ("Installer for " .. githubUser .. "/" .. githubRepo .. ", branch " .. githubBranch))
-print("Getting files...")
 local fileCount = 0
 for _ in pairs(files) do
 	fileCount = fileCount + 1
@@ -93,17 +95,19 @@ local filesDownloaded = 0
 local w, h = term.getSize()
 
 for k, v in pairs(files) do
-	term.setTextColor(colors.black)
-	term.setBackgroundColor(colors.white)
-	clear()
-	term.setCursorPos(2, 2)
-	print(installerName or ("Installer for " .. githubUser .. "/" .. githubRepo .. ", branch " .. githubBranch))
-	term.setCursorPos(2, 4)
-	print("File: "..v)
-	term.setCursorPos(2, h - 1)
-	print(tostring(math.floor(filesDownloaded / fileCount * 100)).."% - "..tostring(filesDownloaded + 1).."/"..tostring(fileCount))
+	if not quiet then
+		term.setTextColor(colors.black)
+		term.setBackgroundColor(colors.white)
+		clear()
+		term.setCursorPos(2, 2)
+		print(installerName or ("Installer for " .. githubUser .. "/" .. githubRepo .. ", branch " .. githubBranch))
+		term.setCursorPos(2, 4)
+		print("File: "..v)
+		term.setCursorPos(2, h - 1)
+		print(tostring(math.floor(filesDownloaded / fileCount * 100)).."% - "..tostring(filesDownloaded + 1).."/"..tostring(fileCount))
+	end
 	local ok = k:sub(1, 4) == "ext:" and httpGet(k:sub(5), v) or getFile(k, v)
-	if not ok then
+	if not ok and not quiet then
 		if term.isColor() then
 			term.setTextColor(colors.red)
 		end
@@ -118,6 +122,43 @@ end
 if not fs.exists("apps") then
 	fs.makeDir("apps")
 end
+
+if not quiet then
+	term.setTextColor(colors.white)
+	term.setBackgroundColor(colors.black)
+	clear()
+end
+
+for i, v in ipairs(extraScripts) do
+	if not quiet then write(v..": ") end
+	local str = httpGet(v)
+	if not str then
+		if not quiet then
+			print("download error")
+		end
+	else
+		local fn, err = loadstring(str, fs.getName(v))
+		if not fn then
+			if not quiet then
+				printError("script error\n  "..err)
+			end
+		else
+			local o, e = pcall(setfenv(fn, getfenv()))
+			if not quiet then
+				if not o then
+					printError("script error\n  "..e)
+				else
+					print("ok")
+				end
+			end
+		end
+	end
+end
+
+if quiet then
+	return
+end
+sleep(1)
 os.reboot()
 
 -- old end code
