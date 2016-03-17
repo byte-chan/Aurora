@@ -59,3 +59,98 @@ function split(str, chr)
   table.insert(parts, tmp)
   return parts
 end
+
+function fileBrowser(path, title)
+  if not title then title = "File browser" end
+  local list
+  local sel = 1
+  local yscroll = 0
+  local function refresh()
+    list = fs.list(path)
+    for i, v in ipairs(list) do
+      if fs.isDir(fs.combine(path, v)) then
+        list[i] = list[i] .. "/"
+      end
+    end
+    table.sort(list)
+    if path ~= "" then
+      table.insert(list, 1, "../")
+    end
+  end
+  local w, h = term.getSize()
+  local function redraw()
+    term.setBackgroundColor(colors.white)
+    term.clear()
+    term.setCursorPos(1, 1)
+    term.setBackgroundColor(colors.lightGray)
+    term.clearLine()
+    term.setTextColor(colors.black)
+    aUtil.cwrite(title, 1)
+    term.setCursorPos(1, 2)
+    term.clearLine()
+    term.write("/"..path)
+    term.setCursorPos(1, h)
+    term.clearLine()
+    term.write("Arrow keys:nav, enter:sel, Q:cancel, T:type name")
+    term.setBackgroundColor(colors.white)
+    for i = yscroll + 1, yscroll + h - 3 do
+      if list[i] then
+        term.setCursorPos(1, i + 2 - yscroll)
+        term.write((i == sel and "> " or "  ")..list[i])
+      end
+    end
+  end
+  refresh()
+  while true do
+    -- redraw
+    redraw()
+    -- handle events
+    local ev = {os.pullEventRaw()}
+    if ev[1] == "terminate" then
+      return nil
+    elseif ev[1] == "term_resize" then
+      w, h = term.getSize()
+    elseif ev[1] == "key" then
+      if ev[2] == keys.up then
+        sel = (sel - 2) % #list + 1
+      elseif ev[2] == keys.down then
+        sel = sel % #list + 1
+      elseif ev[2] == keys.q then
+        return nil
+      elseif ev[2] == keys.left then
+        path = fs.getDir(path)
+        refresh()
+        sel = 1
+      elseif ev[2] == keys.right then
+        if list[sel] == "../" then
+          path = fs.getDir(path)
+          refresh()
+          sel = 1
+        else
+          if fs.isDir(fs.combine(path, list[sel])) then
+            path = fs.combine(path, list[sel])
+            refresh()
+            sel = 1
+          end
+        end
+      elseif ev[2] == keys.enter then
+        return fs.combine(path, list[sel])
+      elseif ev[2] == keys.t then
+        term.setCursorPos(1, 2)
+        term.setBackgroundColor(colors.lightGray)
+        term.clearLine()
+        term.write("/" .. path .. (path == "" and "" or "/"))
+        local str = read()
+        if str ~= "" then
+          return fs.combine(path, str)
+        end
+      end
+    end
+    -- fix display
+    if sel < yscroll + 1 then
+      yscroll = sel - 1
+    elseif sel > yscroll + h - 3 then
+      yscroll = sel - h + 3
+    end
+  end
+end
