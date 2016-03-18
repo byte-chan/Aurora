@@ -25,6 +25,9 @@ if not appInfo then
   return false
 end
 local prettyname = appInfo.sName and appInfo.sName .. " (" .. appInfo.sID .. ")" or appInfo.sID
+if appInfo.sName == appInfo.sID then
+  prettyname = appInfo.sID
+end
 aUtil.debug("Installing " .. prettyname)
 local appPath = fs.combine("apps", appInfo.sID)
 if not fs.exists(appPath) then

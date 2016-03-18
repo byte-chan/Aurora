@@ -100,7 +100,7 @@ for k, v in pairs(files) do
 		term.setBackgroundColor(colors.white)
 		clear()
 		term.setCursorPos(2, 2)
-		print(installerName or ("Installer for " .. githubUser .. "/" .. githubRepo .. ", branch " .. githubBranch))
+		print(installerName)
 		term.setCursorPos(2, 4)
 		print("File: "..v)
 		term.setCursorPos(2, h - 1)
@@ -160,11 +160,3 @@ if quiet then
 end
 sleep(1)
 os.reboot()
-
--- old end code
-clear()
-term.setCursorPos(2, 2)
-print("Press any key to continue.")
-term.setCursorPos(2, h-1)
-print("100% - "..tostring(filesDownloaded).."/"..tostring(fileCount))
-os.pullEvent("key")
