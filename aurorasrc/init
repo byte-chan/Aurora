@@ -1,12 +1,11 @@
 setmetatable(getfenv(), {__index = _G})
 
-local function checkArg(argtype, argn, arg) -- a function, don't ask
+local function checkArg(argtype, argn, arg)
 	if type(arg) ~= argtype then
 		error("invalid arg #"..argn.." ("..argtype.." expected, got "..type(arg)..")", 1)
 	end
 end
 
--- mountable fs (aka hell)
 local proxy = {}
 local nativefs = fs; _G.fs = {}
 local rootfs = nativefs
@@ -174,7 +173,7 @@ function fs.isReadOnly(path)
 	path = fs.cleanPath(path)
 	return fs.getProxy(path).isReadOnly(fs.getProxiedPath(path))
 end
-function fs.find(path) -- totally not copypasted from cclite
+function fs.find(path) -- cclite copypaste
 	path = fs.cleanPath(path)
 	local function recurse_spec(results, path, spec)
 		local segment = spec:match('([^/]*)'):gsub('/', '')
@@ -440,11 +439,10 @@ function fs.tmpfsProxy(structure, writeCallback, driveName)
 	end
 	function p.copy(path, target)
 		if p.isDir(path) then
-			fs.recursiveCopy(p, p, path, target) -- omg i'm lazy
+			fs.recursiveCopy(p, p, path, target)
 		end
 	end
 	function p.move(path, target)
-		-- cheap but should work ._.
 		getFile(fs.getDir(target)).files[fs.getName(target)] = getFile(fs.getDir(path)).files[fs.getName(path)]
 		p.delete(path)
 	end
