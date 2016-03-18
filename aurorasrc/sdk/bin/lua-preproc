@@ -32,7 +32,7 @@ function preproc(lines, depth)
     if v:sub(1, 6) == "--#if " then
       cond = cond + 1
       if not skipFalse then
-        if not loadstring("return "..v:sub(7))() then
+        if not loadstring("return " .. v:sub(7))() then
           skipFalse = cond
         else
           condWasTrue = condWasTrue + 1
@@ -40,7 +40,7 @@ function preproc(lines, depth)
       end
     elseif v:sub(1, 10) == "--#elseif " then
       if (not skipFalse or cond == skipFalse) then
-        if not loadstring("return "..v:sub(11))() then
+        if not loadstring("return " .. v:sub(11))() then
           skipFalse = cond
         else
           skipFalse = nil
@@ -72,7 +72,7 @@ function preproc(lines, depth)
         end
         table.insert(outparts, preproc(_lines, (depth or 0) + 1))
       elseif v:sub(1, 14) == "--#includeapi " then
-        table.insert(outparts, "_api(\""..fs.getName(v:sub(15)).."\", function()")
+        table.insert(outparts, "_api(\"" .. fs.getName(v:sub(15)) .. "\", function()")
         local _lines = {}
         for line in io.lines(shell.resolve(v:sub(15))) do
           table.insert(_lines, line)

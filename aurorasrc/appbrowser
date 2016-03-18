@@ -96,7 +96,7 @@ while true do
     elseif ev[2] == keys.d then
       term.clear()
       term.setCursorPos(2, 2)
-      term.write("Delete "..appNames[selected].."? [yN]")
+      term.write("Delete " .. appNames[selected] .. "? [yN]")
       local e, k = os.pullEvent("key")
       if k == keys.y then
         fs.delete(fs.combine("apps", appNameToID[ appNames[selected] ]))

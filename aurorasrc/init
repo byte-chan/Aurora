@@ -2,7 +2,7 @@ setmetatable(getfenv(), {__index = _G})
 
 local function checkArg(argtype, argn, arg)
 	if type(arg) ~= argtype then
-		error("invalid arg #"..argn.." ("..argtype.." expected, got "..type(arg)..")", 1)
+		error("invalid arg #" .. argn .. " (" .. argtype .. " expected, got " .. type(arg) .. ")", 1)
 	end
 end
 
@@ -220,7 +220,7 @@ function fs.getFreeSpace(path)
 end
 for i in pairs(nativefs) do
 	if not fs[i] then
-		print("MISSING: "..i)
+		print("MISSING: " .. i)
 	end
 end
 function fs.appfsProxy(structure)
@@ -566,11 +566,11 @@ local sysStructure = {
 fs.proxy("sys", fs.appfsProxy(sysStructure))
 fs.proxy("tmp", fs.tmpfsProxy())
 
-shell.setPath(shell.path()..":/.aurora")
+shell.setPath(shell.path() .. ":/.aurora")
 
 local craftOSVersion = os.version
 function os.version()
-  return "Aurora: "..craftOSVersion()
+  return "Aurora: " .. craftOSVersion()
 end
 
 local function makeCleanConfig()
@@ -632,11 +632,11 @@ local bootAnim = 1
 local bootAnimChars = "-\\|/"
 
 for k, v in pairs(fs.list(".aurora/apis")) do
-  aUtil.debug("  - \""..v.."\"")
+  aUtil.debug("  - \"" .. v .. "\"")
   term.clear()
-  aUtil.cwrite("Aurora \""..aurora.config.name.."\"", aUtil.centerY() - 1)
+  aUtil.cwrite("Aurora \"" .. aurora.config.name .. "\"", aUtil.centerY() - 1)
   if aurora.config.debug then
-    aUtil.cwrite("Loading "..v, aUtil.centerY() + 1)
+    aUtil.cwrite("Loading " .. v, aUtil.centerY() + 1)
   end
   aUtil.cwrite(bootAnimChars:sub(bootAnim, bootAnim))
   loadAPI(fs.combine(".aurora/apis", v))
@@ -650,7 +650,7 @@ if fs.exists(".aurora/sdk/init") then
 end
 
 term.clear()
-aUtil.cwrite("Aurora \""..aurora.config.name.."\"")
+aUtil.cwrite("Aurora \"" .. aurora.config.name .. "\"")
 sleep(0)
 
 if aurora.config.firstboot then

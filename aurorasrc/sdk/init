@@ -1,1 +1,1 @@
-shell.setPath(shell.path()..":/.aurora/sdk/bin")
+shell.setPath(shell.path() .. ":/.aurora/sdk/bin")

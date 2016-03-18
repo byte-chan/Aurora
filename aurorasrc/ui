@@ -16,7 +16,7 @@ function aurora.uiSettings()
     aUtil.cwrite(message, 1)
     term.setBackgroundColor(colors.white)
     term.setCursorPos(2, 3)
-    term.write("Current value (UP arrow key): "..current)
+    term.write("Current value (UP arrow key): " .. current)
     term.setCursorPos(1, 4)
     term.write("New value: ")
     return read(nil, {current})
@@ -365,7 +365,7 @@ local function redrawMenuButton()
     term.setTextColor(menubutton.fg1)
     term.setBackgroundColor(menubutton.bg1)
   end
-  term.write(" "..config.text.menubutton.." ")
+  term.write(" " .. config.text.menubutton .. " ")
 end
 
 local function redrawMenuBar()
@@ -384,7 +384,7 @@ local function redrawMenu()
   term.setBackgroundColor(menu.bg)
   for i, v in ipairs(menuItems) do
     term.setCursorPos(1, termh - (#menuItems - i) - 1)
-    term.write((uistate.menuPos == i and ">" or " ")..v.label..string.rep(" ", menuWidth - #v.label + 1))
+    term.write((uistate.menuPos == i and ">" or " ") .. v.label .. string.rep(" ", menuWidth - #v.label + 1))
   end
 end
 

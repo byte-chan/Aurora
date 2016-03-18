@@ -9,7 +9,7 @@ function readFile(path)
 end
 function unserializeFile(path)
   local ok, arg = pcall(setfenv(
-    loadstring("return "..(readFile(path) or "nil")),
+    loadstring("return " .. (readFile(path) or "nil")),
     getfenv()
   ))
   if not ok then

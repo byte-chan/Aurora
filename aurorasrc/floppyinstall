@@ -36,7 +36,7 @@ if not fs.exists(appPath) then
 end
 
 for i, v in pairs(fs.list(diskPath)) do
-  aUtil.debug("  Copying file \""..v.."\"")
+  aUtil.debug("  Copying file \"" .. v .. "\"")
   pcall(fs.delete, fs.combine(appPath, v))
   fs.copy(fs.combine(diskPath, v), fs.combine(appPath, v))
 end

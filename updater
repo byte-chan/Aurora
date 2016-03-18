@@ -30,7 +30,7 @@ local aurorasrc = {
 }
 
 for i, v in ipairs(aurorasrc) do
-	files["aurorasrc/"..v] = ".aurora/"..v
+	files["aurorasrc/" .. v] = ".aurora/" .. v
 end
 
 local extraScripts = {
@@ -71,7 +71,7 @@ local function get(user, repo, bran, path, save)
 	if not user or not repo or not bran or not path then
 		error("not enough arguments, expected 4 or 5", 2)
 	end
-    local url = "https://raw.github.com/"..user.."/"..repo.."/"..bran.."/"..path
+    local url = "https://raw.github.com/" .. user .. "/" .. repo .. "/" .. bran .. "/" .. path
 	local text = httpGet(url)
 	if save then
 		local file = fs.open(save, "w")
@@ -102,9 +102,9 @@ for k, v in pairs(files) do
 		term.setCursorPos(2, 2)
 		print(installerName)
 		term.setCursorPos(2, 4)
-		print("File: "..v)
+		print("File: " .. v)
 		term.setCursorPos(2, h - 1)
-		print(tostring(math.floor(filesDownloaded / fileCount * 100)).."% - "..tostring(filesDownloaded + 1).."/"..tostring(fileCount))
+		print(tostring(math.floor(filesDownloaded / fileCount * 100)) .. "% - " .. tostring(filesDownloaded + 1) .. "/" .. tostring(fileCount))
 	end
 	local ok = k:sub(1, 4) == "ext:" and httpGet(k:sub(5), v) or getFile(k, v)
 	if not ok and not quiet then
@@ -130,7 +130,7 @@ if not quiet then
 end
 
 for i, v in ipairs(extraScripts) do
-	if not quiet then write(v..": ") end
+	if not quiet then write(v .. ": ") end
 	local str = httpGet(v)
 	if not str then
 		if not quiet then
@@ -140,13 +140,13 @@ for i, v in ipairs(extraScripts) do
 		local fn, err = loadstring(str, fs.getName(v))
 		if not fn then
 			if not quiet then
-				printError("script error\n  "..err)
+				printError("script error\n  " .. err)
 			end
 		else
 			local o, e = pcall(setfenv(fn, getfenv()))
 			if not quiet then
 				if not o then
-					printError("script error\n  "..e)
+					printError("script error\n  " .. e)
 				else
 					print("ok")
 				end

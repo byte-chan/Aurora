@@ -2,7 +2,7 @@ local args = {...}
 
 if #args < 1 then
 	print("Usage: pager <path>")
-	print("Advanced usage: specify a table as argument - "..textutils.serialize({
+	print("Advanced usage: specify a table as argument - " .. textutils.serialize({
 		data = "text to display",
 		title = "optional, will display a message in bottom left",
 	}))
@@ -42,8 +42,8 @@ local function redraw()
 		end
 	end
 	term.setCursorPos(1, h)
-	term.write((arg.title or "no info")..(ys == #lines - h + 1 and " (END)" or ""))
-	local str = "+"..ys..","..xs
+	term.write((arg.title or "no info") .. (ys == #lines - h + 1 and " (END)" or ""))
+	local str = "+" .. ys .. "," .. xs
 	term.setCursorPos(w - #str + 1, h)
 	term.write(str)
 	if setVis then

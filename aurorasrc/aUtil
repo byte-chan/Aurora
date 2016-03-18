@@ -1,6 +1,6 @@
 function debug(str)
   if aurora.config.debug then
-    aFile.appendFile(".aurora/debug.log", "["..os.clock().."] "..str.."\n")
+    aFile.appendFile(".aurora/debug.log", "[" .. os.clock() .. "] " .. str .. "\n")
   end
 end
 
@@ -33,9 +33,9 @@ function doFile_env(env, path, ...)
   end
   local ok = {pcall(setfenv(fn, fenv or getfenv()), ...)}
   if not ok[1] and aurora.config.debug then
-    debug(path.." crashed: "..ok[2])
+    debug(path .. " crashed: " .. ok[2])
     term.setBackgroundColor(colors.black)
-    printError("Debug: "..ok[2])
+    printError("Debug: " .. ok[2])
     print("Press any key to continue")
   end
   return unpack(ok)
@@ -88,7 +88,7 @@ function fileBrowser(path, title)
     aUtil.cwrite(title, 1)
     term.setCursorPos(1, 2)
     term.clearLine()
-    term.write("/"..path)
+    term.write("/" .. path)
     term.setCursorPos(1, h)
     term.clearLine()
     term.write("Arrow keys:nav, enter:sel, Q:cancel, T:type name")
@@ -96,7 +96,7 @@ function fileBrowser(path, title)
     for i = yscroll + 1, yscroll + h - 3 do
       if list[i] then
         term.setCursorPos(1, i + 2 - yscroll)
-        term.write((i == sel and "> " or "  ")..list[i])
+        term.write((i == sel and "> " or "  ") .. list[i])
       end
     end
   end
