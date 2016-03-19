@@ -2,131 +2,155 @@ local args = {...}
 
 local quiet = args[1] == "-q"
 
-local files = {
-	["startup"] = "startup"
-}
-local aurorasrc = {
-	"apis/argparser",
-	"apis/base64",
-	"apis/img",
-	"apis/sha",
-	"sdk/bin/lua-preproc",
-	"sdk/init",
-	"aFile",
-	"appbrowser",
-	"aUtil",
-	"credits",
-	"credplay",
-	"firstBoot",
-	"floppyinstall",
-	"init",
-	"menuItems",
-	"settingsUI",
-	"ui",
-	"wallpaper",
-	"update",
-	"pager",
-	"help.txt",
-}
+local r = http.get("https://api.github.com/repos/MultHub/Aurora/git/refs/heads/master")
+local c = r.readAll():gsub("\"[a-z]+\":", function(match) return match:sub(2, #match - 2) .. "=" end)
+r.close()
 
-for i, v in ipairs(aurorasrc) do
-	files["aurorasrc/" .. v] = ".aurora/" .. v
+local latestSha = textutils.unserialize(c).object.sha
+
+local currentSha = ""
+local f = fs.open(".aurora/currentSha", "r")
+if f then
+	currentSha = f.readAll()
+	f.close()
 end
 
-local extraScripts = {
-	"https://raw.github.com/MultHub/Aurora-apps/master/appsInstaller.lua",
-}
-
-local githubUser    = "MultHub"
-local githubRepo    = "Aurora"
-local githubBranch  = "master"
-
-local installerName = "Aurora Updater"
-
-local function clear()
-	term.clear()
-	term.setCursorPos(1, 1)
-end
-
-local function httpGet(url, save)
-	if not url then
-		error("not enough arguments, expected 1 or 2", 2)
-	end
-	local remote = http.get(url)
-	if not remote then
-		return false
-	end
-	local text = remote.readAll()
-	remote.close()
-	if save then
-		local file = fs.open(save, "w")
-		file.write(text)
-		file.close()
-		return true
-	end
-	return text
-end
-
-local function get(user, repo, bran, path, save)
-	if not user or not repo or not bran or not path then
-		error("not enough arguments, expected 4 or 5", 2)
-	end
-    local url = "https://raw.github.com/" .. user .. "/" .. repo .. "/" .. bran .. "/" .. path
-	local text = httpGet(url)
-	if save then
-		local file = fs.open(save, "w")
-		file.write(text)
-		file.close()
-		return true
-	end
-	return text
-end
-
-local function getFile(file, target)
-	return get(githubUser, githubRepo, githubBranch, file, target)
-end
-
-local fileCount = 0
-for _ in pairs(files) do
-	fileCount = fileCount + 1
-end
-local filesDownloaded = 0
-
-local w, h = term.getSize()
-
-for k, v in pairs(files) do
+if currentSha == latestSha then
 	if not quiet then
-		term.setTextColor(colors.black)
-		term.setBackgroundColor(colors.white)
-		clear()
-		term.setCursorPos(2, 2)
-		print(installerName)
-		term.setCursorPos(2, 4)
-		print("File: " .. v)
-		term.setCursorPos(2, h - 1)
-		print(tostring(math.floor(filesDownloaded / fileCount * 100)) .. "% - " .. tostring(filesDownloaded + 1) .. "/" .. tostring(fileCount))
-	end
-	local ok = k:sub(1, 4) == "ext:" and httpGet(k:sub(5), v) or getFile(k, v)
-	if not ok and not quiet then
-		if term.isColor() then
-			term.setTextColor(colors.red)
-		end
-		term.setCursorPos(2, 6)
-		print("Error getting file:")
-		term.setCursorPos(2, 7)
-		print(k)
+		print("Aurora running latest version, delete .aurora/currentSha to force")
 		sleep(1)
 	end
-	filesDownloaded = filesDownloaded + 1
-end
-if not fs.exists("apps") then
-	fs.makeDir("apps")
-end
+else
+	local files = {
+		["startup"] = "startup"
+	}
+	local aurorasrc = {
+		"apis/argparser",
+		"apis/base64",
+		"apis/img",
+		"apis/sha",
+		"sdk/bin/lua-preproc",
+		"sdk/init",
+		"aFile",
+		"appbrowser",
+		"aUtil",
+		"credits",
+		"credplay",
+		"firstBoot",
+		"floppyinstall",
+		"init",
+		"menuItems",
+		"settingsUI",
+		"ui",
+		"wallpaper",
+		"update",
+		"pager",
+		"help.txt",
+	}
 
-if not quiet then
-	term.setTextColor(colors.white)
-	term.setBackgroundColor(colors.black)
-	clear()
+	for i, v in ipairs(aurorasrc) do
+		files["aurorasrc/" .. v] = ".aurora/" .. v
+	end
+
+	local extraScripts = {
+		"https://raw.github.com/MultHub/Aurora-apps/master/appsInstaller.lua",
+	}
+
+	local githubUser    = "MultHub"
+	local githubRepo    = "Aurora"
+	local githubBranch  = "master"
+
+	local installerName = "Aurora Updater"
+
+	local function clear()
+		term.clear()
+		term.setCursorPos(1, 1)
+	end
+
+	local function httpGet(url, save)
+		if not url then
+			error("not enough arguments, expected 1 or 2", 2)
+		end
+		local remote = http.get(url)
+		if not remote then
+			return false
+		end
+		local text = remote.readAll()
+		remote.close()
+		if save then
+			local file = fs.open(save, "w")
+			file.write(text)
+			file.close()
+			return true
+		end
+		return text
+	end
+
+	local function get(user, repo, bran, path, save)
+		if not user or not repo or not bran or not path then
+			error("not enough arguments, expected 4 or 5", 2)
+		end
+		local url = "https://raw.github.com/" .. user .. "/" .. repo .. "/" .. bran .. "/" .. path
+		local text = httpGet(url)
+		if save then
+			local file = fs.open(save, "w")
+			file.write(text)
+			file.close()
+			return true
+		end
+		return text
+	end
+
+	local function getFile(file, target)
+		return get(githubUser, githubRepo, githubBranch, file, target)
+	end
+
+	local fileCount = 0
+	for _ in pairs(files) do
+		fileCount = fileCount + 1
+	end
+	local filesDownloaded = 0
+
+	local w, h = term.getSize()
+
+	for k, v in pairs(files) do
+		if not quiet then
+			term.setTextColor(colors.black)
+			term.setBackgroundColor(colors.white)
+			clear()
+			term.setCursorPos(2, 2)
+			print(installerName)
+			term.setCursorPos(2, 4)
+			print("File: " .. v)
+			term.setCursorPos(2, h - 1)
+			print(tostring(math.floor(filesDownloaded / fileCount * 100)) .. "% - " .. tostring(filesDownloaded + 1) .. "/" .. tostring(fileCount))
+		end
+		local ok = k:sub(1, 4) == "ext:" and httpGet(k:sub(5), v) or getFile(k, v)
+		if not ok and not quiet then
+			if term.isColor() then
+				term.setTextColor(colors.red)
+			end
+			term.setCursorPos(2, 6)
+			print("Error getting file:")
+			term.setCursorPos(2, 7)
+			print(k)
+			sleep(1)
+		end
+		filesDownloaded = filesDownloaded + 1
+	end
+	if not fs.exists("apps") then
+		fs.makeDir("apps")
+	end
+
+	if not quiet then
+		term.setTextColor(colors.white)
+		term.setBackgroundColor(colors.black)
+		clear()
+	end
+
+	local f = fs.open(".aurora/currentSha", "w")
+	f.write(latestSha)
+	f.close()
 end
 
 for i, v in ipairs(extraScripts) do
