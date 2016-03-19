@@ -214,7 +214,7 @@ function aurora.uiSettings()
           path = editText("", "Load theme")
         end
         if path and fs.exists(path) and not fs.isDir(path) then
-          config.theme = aFile.unserializeFile(path)
+          config.theme = aFile.unserializeFile_env({colors = colors, colours = colours, math = math}, path)
         end
       elseif ev[2] == keys.s then
         local path
