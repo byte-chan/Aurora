@@ -19,6 +19,25 @@ local extraScripts = {
 	"https://raw.github.com/MultHub/Aurora-apps/master/appsInstaller.lua",
 }
 
+local function httpGet(url, save)
+	if not url then
+		error("not enough arguments, expected 1 or 2", 2)
+	end
+	local remote = http.get(url)
+	if not remote then
+		return false
+	end
+	local text = remote.readAll()
+	remote.close()
+	if save then
+		local file = fs.open(save, "w")
+		file.write(text)
+		file.close()
+		return true
+	end
+	return text
+end
+
 if currentSha == latestSha then
 	if not quiet then
 		print("Aurora running latest version, delete .aurora/currentSha to force")
@@ -65,25 +84,6 @@ else
 	local function clear()
 		term.clear()
 		term.setCursorPos(1, 1)
-	end
-
-	local function httpGet(url, save)
-		if not url then
-			error("not enough arguments, expected 1 or 2", 2)
-		end
-		local remote = http.get(url)
-		if not remote then
-			return false
-		end
-		local text = remote.readAll()
-		remote.close()
-		if save then
-			local file = fs.open(save, "w")
-			file.write(text)
-			file.close()
-			return true
-		end
-		return text
 	end
 
 	local function get(user, repo, bran, path, save)
