@@ -15,6 +15,10 @@ if f then
 	f.close()
 end
 
+local extraScripts = {
+	"https://raw.github.com/MultHub/Aurora-apps/master/appsInstaller.lua",
+}
+
 if currentSha == latestSha then
 	if not quiet then
 		print("Aurora running latest version, delete .aurora/currentSha to force")
@@ -51,10 +55,6 @@ else
 	for i, v in ipairs(aurorasrc) do
 		files["aurorasrc/" .. v] = ".aurora/" .. v
 	end
-
-	local extraScripts = {
-		"https://raw.github.com/MultHub/Aurora-apps/master/appsInstaller.lua",
-	}
 
 	local githubUser    = "MultHub"
 	local githubRepo    = "Aurora"
