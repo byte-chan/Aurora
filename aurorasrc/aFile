@@ -7,15 +7,18 @@ function readFile(path)
   f.close()
   return c
 end
-function unserializeFile(path)
+function unserializeFile_env(env, path)
   local ok, arg = pcall(setfenv(
     loadstring("return " .. (readFile(path) or "nil")),
-    getfenv()
+    env
   ))
   if not ok then
     return nil, arg
   end
   return arg
+end
+function unserializeFile(path)
+  return unserializeFile_env(getfenv(), path)
 end
 
 function writeFile(path, data)
