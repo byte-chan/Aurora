@@ -445,7 +445,7 @@ function fs.tmpfsProxy(structure, writeCallback, driveName)
 		if p.isDir(path) then
 			fs.recursiveCopy(p, p, path, target)
 		else
-			getFile(fs.getDir(target))[fs.getName(target)] = {data = getFile(path).data}
+			getFile(fs.getDir(target)).files[fs.getName(target)] = {data = getFile(path).data}
 		end
 	end
 	function p.move(path, target)
