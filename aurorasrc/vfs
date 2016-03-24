@@ -436,8 +436,16 @@ function fs.tmpfsProxy(structure, writeCallback, driveName)
 		end
 	end
 	function p.copy(path, target)
+		if p.exists(target) then
+			error("File exists", 1)
+		end
+		if not p.exists(path) then
+			error("File not found", 1)
+		end
 		if p.isDir(path) then
 			fs.recursiveCopy(p, p, path, target)
+		else
+			getFile(fs.getDir(target))[fs.getName(target)] = {data = getFile(path).data}
 		end
 	end
 	function p.move(path, target)
