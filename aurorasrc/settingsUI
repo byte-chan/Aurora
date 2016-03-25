@@ -6,14 +6,14 @@ function aurora.settingsUI()
     term.setTextColor(colors.white)
     if value then
       term.setBackgroundColor(colors.gray)
-      term.write("   ")
+      term.write(" ")
       term.setBackgroundColor(colors.green)
       term.write(" I ")
     else
       term.setBackgroundColor(colors.red)
       term.write(" I ")
       term.setBackgroundColor(colors.gray)
-      term.write(" I ")
+      term.write(" ")
     end
   end
   
@@ -62,8 +62,8 @@ function aurora.settingsUI()
     term.write("Debug mode")
     term.setCursorPos(2, 7)
     term.write("Advanced")
-    redrawBoolean(w - 6, 5, aurora.config.uiShutdown)
-    redrawBoolean(w - 6, 6, aurora.config.debug)
+    redrawBoolean(w - 5, 5, aurora.config.uiShutdown)
+    redrawBoolean(w - 5, 6, aurora.config.debug)
     if not aurora.config.debug then
       term.current().setVisible(true)
     end
