@@ -128,7 +128,7 @@ function aurora.uiSettings()
   end
   local fnEnter = {
     [ymap[1]] = function() -- 4
-      config.text.menubutton = editText(config.text.menubutton, "Set menu button text")
+      config.text.menubutton = aUtil.editText(config.text.menubutton, "Set menu button text")
     end,
     [ymap[2]] = nil, -- 5
     [ymap[3]] = nil, -- 6
@@ -140,7 +140,7 @@ function aurora.uiSettings()
       config.theme.wallpaper.color = colorPicker(config.theme.wallpaper.color, "Background color")
     end,
     [ymap[7]] = function() -- 14
-      config.theme.wallpaper.image.path = editText(config.theme.wallpaper.image.path, "Image path, clear to disable")
+      config.theme.wallpaper.image.path = aUtil.editText(config.theme.wallpaper.image.path, "Image path, clear to disable")
     end,
   }
   local fn1 = {
