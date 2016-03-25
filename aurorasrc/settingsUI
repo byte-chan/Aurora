@@ -1,5 +1,5 @@
 function aurora.settingsUI()
-  local scrollY = 0
+  local sel = 1
 
   local function redrawBoolean(x, y, value)
     term.setCursorPos(x, y)
@@ -16,28 +16,101 @@ function aurora.settingsUI()
       term.write(" I ")
     end
   end
+  
+  local desc = setmetatable({
+    "Rename this computer?",
+    "The path of the UI, feel free to change it",
+    "Shuts down your computer if the UI crashes",
+    "Disables setVisible render hack, more logging",
+    "More options not in this program",
+  }, {__index = function(self, k)
+    return "No description"
+  end})
 
   local function redraw()
     if not aurora.config.debug then
       term.current().setVisible(false)
     end
+    local w, h = term.getSize()
     term.setTextColor(colors.black)
     term.setBackgroundColor(colors.white)
     term.clear()
     term.setCursorPos(1, 1)
     term.setBackgroundColor(colors.lightGray)
     term.clearLine()
-    aUtil.cwrite("Aurora Settings", 1)
+    aUtil.cwrite("Aurora config", 1)
+    term.setCursorPos(1, h - 1)
+    term.clearLine()
+    term.write(desc[sel])
+    term.setCursorPos(1, h)
+    term.clearLine()
+    term.write("Q: quit, up/down: move, enter: change")
+    term.setBackgroundColor(colors.white)
+    term.setCursorPos(1, 2 + sel)
+    term.write(">")
+    term.setCursorPos(2, 3)
+    term.write("Name")
+    term.setCursorPos(w - #aurora.config.name, 3)
+    term.write(aurora.config.name)
+    term.setCursorPos(2, 4)
+    term.write("[!] UI path")
+    term.setCursorPos(w - #aurora.config.uiPath, 4)
+    term.write(aurora.config.uiPath)
+    term.setCursorPos(2, 5)
+    term.write("UI shutdown")
+    term.setCursorPos(2, 6)
+    term.write("Debug mode")
+    term.setCursorPos(2, 7)
+    term.write("Advanced")
+    redrawBoolean(w - 6, 5, aurora.config.uiShutdown)
+    redrawBoolean(w - 6, 6, aurora.config.debug)
     if not aurora.config.debug then
       term.current().setVisible(true)
     end
   end
 
-  term.setTextColor(colors.white)
-  term.setBackgroundColor(colors.black)
-  term.clear()
-  term.setCursorPos(2, 2)
-  print("Settings UI is WIP, starting edit")
---  sleep(2)
-  aUtil.doFile("rom/programs/edit", "/.aurora/config")
+  local actions = {
+    [1] = function()
+      aurora.config.name = aUtil.editText(aurora.config.name, "Computer name")
+    end,
+    [2] = function()
+      aurora.config.uiPath = aUtil.editText(aurora.config.uiPath, "UI path")
+    end,
+    [3] = function()
+      aurora.config.uiShutdown = not aurora.config.uiShutdown
+    end,
+    [4] = function()
+      aurora.config.debug = not aurora.config.debug
+    end,
+    [5] = function()
+      aFile.serializeFile(".aurora/config", aurora.config)
+      aUtil.doFile("rom/programs/edit", "/.aurora/config")
+      local newConfig = aFile.unserializeFile(".aurora/config")
+      if not newConfig then
+        aFile.serializeFile(".aurora/config", aurora.config)
+      end
+      for k, v in pairs(newConfig) do
+        aurora.config[k] = v
+      end
+    end,
+  }
+
+  while true do
+    redraw()
+    local ev = {os.pullEventRaw()}
+    if ev[1] == "terminate" then
+      break
+    elseif ev[1] == "key" then
+      if ev[2] == keys.enter then
+        if actions[sel] then
+          actions[sel]()
+        end
+      elseif ev[2] == keys.up then
+        sel = (sel - 2) % #actions + 1
+      elseif ev[2] == keys.down then
+        sel = sel % #actions + 1
+      end
+    end
+  end
+  aFile.serializeFile(".aurora/config", aurora.config)
 end
