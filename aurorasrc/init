@@ -2,10 +2,10 @@ setmetatable(getfenv(), {__index = _G})
 
 shell.setPath(shell.path() .. ":/.aurora")
 
-term.isColor = function()
+term.native().isColor = function()
   return true
 end
-term.isColour = term.isColor
+term.native().isColour = term.isColor
 
 -- make CC use a window anyway
 if not term.current().setVisible then
