@@ -101,7 +101,9 @@ function aurora.settingsUI()
     if ev[1] == "terminate" then
       break
     elseif ev[1] == "key" then
-      if ev[2] == keys.enter then
+      if ev[2] == keys.q then
+        break
+      elseif ev[2] == keys.enter then
         if actions[sel] then
           actions[sel]()
         end
