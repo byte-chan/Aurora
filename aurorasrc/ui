@@ -6,21 +6,6 @@ local makeUiConfig
 
 function aurora.uiSettings()
   -- old "code" -- aUtil.doFile("rom/programs/edit", "/.aurora/uiConfig")
-  local function editText(current, message)
-    term.setBackgroundColor(colors.white)
-    term.setTextColor(colors.black)
-    term.clear()
-    term.setCursorPos(1, 1)
-    term.setBackgroundColor(colors.lightGray)
-    term.clearLine()
-    aUtil.cwrite(message, 1)
-    term.setBackgroundColor(colors.white)
-    term.setCursorPos(2, 3)
-    term.write("Current value (UP arrow key): " .. current)
-    term.setCursorPos(1, 4)
-    term.write("New value: ")
-    return read(nil, {current})
-  end
   local function colorPicker(current, message)
     local old = current
     current = math.log(current) / math.log(2)
