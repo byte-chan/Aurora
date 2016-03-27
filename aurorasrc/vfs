@@ -530,6 +530,24 @@ function fs.tmpfsProxy(structure, writeCallback, driveName)
 	end
 	return p
 end
+function fs.redirectProxy(parent, dir)
+	local p = {}
+	function p.open(path, mode)
+		return parent.open(fs.combine(dir, path), mode)
+	end
+	for i, v in ipairs({"delete", "getSize", "getFreeSpace", "makeDir", "getDrive", "isReadOnly", "exists", "isDir", "list"}) do
+		p[v] = function(path)
+			return parent[v](fs.combine(dir, path))
+		end
+	end
+	function p.copy(src, dest)
+		return parent.copy(fs.combine(dir, src), fs.combine(dir, dest))
+	end
+	function p.move(src, dest)
+		return parent.move(fs.combine(dir, src), fs.combine(dir, dest))
+	end
+	return p
+end
 if not fs.exists("sys") then
 	fs.makeDir("sys")
 end
