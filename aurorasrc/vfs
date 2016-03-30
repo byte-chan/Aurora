@@ -1,3 +1,7 @@
+if fs.native then
+	return false, "VFS already installed"
+end
+
 local function checkArg(argtype, argn, arg)
 	if type(arg) ~= argtype then
 		error("invalid arg #" .. argn .. " (" .. argtype .. " expected, got " .. type(arg) .. ")", 1)
