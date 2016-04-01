@@ -87,7 +87,6 @@ end
 
 print("Loading aFile")
 loadAPI(".aurora/aFile")
-sleep(0)
 
 _G.aurora = {
   config = aFile.unserializeFile(".aurora/config") or makeCleanConfig(),
@@ -113,7 +112,7 @@ loadAPI(".aurora/aUtil")
 
 aUtil.doFile(".aurora/vfs")
 
-sleep(0)
+aUtil.yield()
 
 aUtil.debug("Loading APIs")
 
@@ -130,7 +129,7 @@ for k, v in pairs(fs.list(".aurora/apis")) do
   aUtil.cwrite(bootAnimChars:sub(bootAnim, bootAnim))
   loadAPI(fs.combine(".aurora/apis", v))
   bootAnim = (bootAnim % #bootAnimChars) + 1
-  sleep(0)
+  aUtil.yield()
 end 
 
 if fs.exists(".aurora/sdk/init") then
@@ -140,7 +139,7 @@ end
 
 term.clear()
 aUtil.cwrite("Aurora \"" .. aurora.config.name .. "\"")
-sleep(0)
+aUtil.yield()
 
 if aurora.config.firstboot then
   aUtil.doFile(".aurora/firstBoot")
