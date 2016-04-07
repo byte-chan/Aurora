@@ -139,7 +139,7 @@ function fs.copy(path, target)
 			error("Access denied", 1)
 		end
 		local f1 = p1.open(fs.getProxiedPath(path), "r")
-		local f2 = p2.open(fs.getProxiedPath(path), "w")
+		local f2 = p2.open(fs.getProxiedPath(target), "w")
 		f2.write(f1.readAll())
 		f1.close()
 		f2.close()
