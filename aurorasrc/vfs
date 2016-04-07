@@ -23,7 +23,14 @@ end
 function fs.cleanPath(path)
 	local parts = {}
 	for match in string.gmatch(path, "[^/]+") do
-		table.insert(parts, match)
+		if match == ".." then
+			if #parts < 1 then
+				error("Invalid path", 1)
+			end
+			table.remove(parts, #parts)
+		else
+			table.insert(parts, match)
+		end
 	end
 	return table.concat(parts, "/")
 end
