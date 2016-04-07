@@ -1,11 +1,6 @@
-local cachedWallpaper = nil
-
-local updateConfig
-local config
-local makeUiConfig
+local cachedWallpaper, updateConfig, config, makeUiConfig
 
 function aurora.uiSettings()
-  -- old "code" -- aUtil.doFile("rom/programs/edit", "/.aurora/uiConfig")
   local function colorPicker(current, message)
     local old = current
     current = math.log(current) / math.log(2)
@@ -44,17 +39,8 @@ function aurora.uiSettings()
       end
     end
   end
-  local ymap = {
-    4,
-    5,
-    6,
-    8,
-    10,
-    13,
-    14,
-  }
-  local sel = 1
-  local w, h
+  local ymap = {4, 5, 6, 8, 10, 13, 14}
+  local sel, w, h = 1
   local function redraw()
     w, h = term.getSize()
     term.setBackgroundColor(colors.white)
@@ -226,17 +212,11 @@ function aurora.uiSettings()
       end
     end
   end
-
   cachedWallpaper = nil
-  --local newconfig = aFile.unserializeFile(".aurora/uiConfig")
-  --if newconfig then
-  --  config = updateConfig(newconfig, makeUiConfig())
-  --end
   aFile.serializeFile(".aurora/uiConfig", config)
 end
 
-local menuItems = {}
-local menuWidth = 0
+local menuItems, menuWidth = {}, 0
 local function refreshMenu()
   menuItems = aFile.unserializeFile(".aurora/menuItems")
   for i, v in ipairs(aFile.unserializeFile(".aurora/userMenu") or {}) do
