@@ -541,6 +541,14 @@ function fs.tmpfsProxy(structure, writeCallback, driveName)
 	end
 	return p
 end
+function fs.fileProxy(path, label)
+	if not label then
+		label = fs.getName(path)
+	end
+	return fs.redirectProxy(aFile.unserializeFile(path) or {}, function(structure)
+		aFile.serializeFile(path, structure)
+	end, label)
+end
 function fs.redirectProxy(parent, dir)
 	local p = {}
 	function p.open(path, mode)
