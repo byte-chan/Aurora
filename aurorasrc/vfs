@@ -545,7 +545,7 @@ function fs.fileProxy(path, label)
 	if not label then
 		label = fs.getName(path)
 	end
-	return fs.redirectProxy(aFile.unserializeFile(path) or {}, function(structure)
+	return fs.tmpfsProxy(aFile.unserializeFile(path) or {}, function(structure)
 		aFile.serializeFile(path, structure)
 	end, label)
 end
