@@ -1,0 +1,163 @@
+local function makeElement(name)
+  return {name = name, elements = {}, attributes = {}}
+end
+
+local escapes = {
+  quot = "\"",
+  apos = "'",
+  lt = "<",
+  gt = ">",
+  amp = "&",
+}
+
+function parse(str)
+  local root = makeElement("")
+  local newline = false
+  local tmp = ""
+  local tmp2 = ""
+  local tmpescape = ""
+  local mode = "root"
+  local escape = false
+  local skip = 0
+  local nest = 0
+  for i = 1, #str do
+    local c = str:sub(i, i)
+    if not mode then
+      error("something weird happened", 1)
+    end
+    if skip > 0 then
+      skip = skip - 1
+    elseif escape then
+      if c == ";" then
+        if escapes[tmpescape] then
+          tmp = tmp .. escapes[tmpescape]
+          tmpescape = ""
+          escape = false
+        else
+          error("invalid escape", 1)
+        end
+      else
+        tmpescape = tmpescape .. c
+      end
+    else
+      if mode == "comment" then
+        if str:sub(i, i + 2) == "-->" then
+          mode = "data"
+          skip = 2
+        end
+      elseif mode == "data" then
+        if str:sub(i, i + 3) == "<!--" then
+          mode = "comment"
+        elseif str:sub(i, i + 1) == "</" then
+          if #tmp > 0 then
+            table.insert(root.elements, tmp)
+          end
+          -- simply do not care
+          return root
+        elseif c == "<" then
+          if #tmp > 0 then
+            table.insert(root.elements, tmp)
+            tmp = ""
+          end
+          mode = "tag"
+          tmp = tmp .. c
+        elseif c == "\n" then
+          newline = true
+        else
+          if c == "&" then
+            escape = true
+          elseif newline then
+            if c ~= " " and c ~= "\t" then
+              newline = false
+              tmp = tmp .. c
+            end
+          else
+            tmp = tmp .. c
+          end
+        end
+      elseif mode == "tag" then
+        if c == ">" then
+          mode = "tagdata"
+        end
+        tmp = tmp .. c
+      elseif mode == "tagdata" then
+        if c == "<" then
+          if str:sub(i + 1, i + 1) == "/" then
+            if nest < 1 then
+              mode = "tagclose"
+            else
+              nest = nest - 1
+            end
+          else
+            nest = nest + 1
+          end
+        end
+        tmp = tmp .. c
+      elseif mode == "tagclose" then
+        tmp = tmp .. c
+        if c == ">" then
+          mode = "data"
+          table.insert(root.elements, parse(tmp))
+          tmp = ""
+        end
+      elseif mode == "root" then
+        if c == " " then
+          if #tmp > 0 then
+            root.name = tmp
+            tmp = ""
+            mode = "attribute"
+          end
+        elseif c == ">" then
+          root.name = tmp
+          tmp = ""
+          mode = "data"
+        elseif str:sub(i, i + 1) == "/>" then
+          root.name = tmp
+          return root
+        elseif c ~= "<" then
+          tmp = tmp .. c
+        end
+      elseif mode == "attribute" then
+        if c == ">" then
+          mode = "data"
+          tmp = ""
+        elseif str:sub(i, i + 1) == "/>" then
+          return root
+        elseif c == "=" then
+          mode = "attributevalue"
+          tmp2 = tmp
+          tmp = ""
+        elseif c ~= " " then
+          tmp = tmp .. c
+        end
+      elseif mode == "attributevalue" then
+        if c == "\"" then
+          mode = "attributequot"
+        elseif c == "'" then
+          mode = "attributeapos"
+        end
+      elseif mode == "attributequot" then
+        if c == "\"" then
+          mode = "attribute"
+          root.attributes[tmp2] = tmp
+          tmp = ""
+        elseif c == "&" then
+          escape = true
+        else
+          tmp = tmp .. c
+        end
+      elseif mode == "attributeapos" then
+        if c == "'" then
+          mode = "attribute"
+          root.attributes[tmp2] = tmp
+          tmp = ""
+        elseif c == "&" then
+          escape = true
+        else
+          tmp = tmp .. c
+        end
+      end
+    end
+  end
+  return root
+end
