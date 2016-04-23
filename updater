@@ -52,6 +52,7 @@ else
 		"apis/base64",
 		"apis/img",
 		"apis/sha",
+		"apis/xml",
 		"sdk/bin/lua-preproc",
 		"sdk/init",
 		"aFile",
