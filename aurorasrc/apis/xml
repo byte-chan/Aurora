@@ -1,7 +1,4 @@
-local function makeElement(name)
-  return {name = name, elements = {}, attributes = {}}
-end
-
+-- XML parser by MultMine (MultHub)
 local escapes = {
   quot = "\"",
   apos = "'",
@@ -11,7 +8,7 @@ local escapes = {
 }
 
 function parse(str)
-  local root = makeElement("")
+  local root = {name = "", elements = {}, attributes = {}}
   local newline = false
   local tmp = ""
   local tmp2 = ""
