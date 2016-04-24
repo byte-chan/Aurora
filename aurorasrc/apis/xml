@@ -8,6 +8,9 @@ local escapes = {
 }
 
 function parse(str)
+  -- cheap hax
+  str = str:gsub("<!DOCTYPE [%a]*>", ""):gsub("<?xml[%a]*%?>", "")
+  -- actual code
   local root = {name = "", elements = {}, attributes = {}}
   local newline = false
   local tmp = ""
