@@ -9,7 +9,7 @@ local escapes = {
 
 function parse(str)
   -- cheap hax
-  str = str:gsub("<!DOCTYPE [%a]*>", ""):gsub("<?xml[%a]*%?>", "")
+  str = str:gsub("<![Dd][Oo][Cc][Tt][Yy][Pp][Ee] [%a]*>", ""):gsub("<?xml[%a]*%?>", "")
   -- actual code
   local root = {name = "", elements = {}, attributes = {}}
   local newline = false
