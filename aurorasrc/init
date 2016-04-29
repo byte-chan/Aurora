@@ -152,9 +152,10 @@ if not aurora.config.uiPath or not fs.exists(aurora.config.uiPath) or fs.isDir(a
   printError("\"uiPath\" not set or invalid, falling back to shell")
   aUtil.doFile("rom/programs/shell")
 else
-  if not aUtil.doFile(aurora.config.uiPath) then
+  local ok, err = aUtil.doFile(aurora.config.uiPath)
+  if not ok then
     term.setCursorPos(1, 1)
-    printError("UI crashed, falling back to shell")
+    printError("UI crashed, falling back to shell - " .. tostring(err))
     aUtil.doFile("rom/programs/shell")
     os.reboot()
   end
