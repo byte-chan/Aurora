@@ -4,4 +4,4 @@ Aurora [![maximum lame at https://gitter.im/MultHub/Aurora](https://badges.gitte
 yet another ComputerCraft console/operating system/whatever you want to call it :Y
 
 ## How to install
-[`pastebin run Lp8mDKH0`](http://pastebin.com/LP8mDKH0), it's *that* easy
+[`pastebin run Lp8mDKH0`](http://pastebin.com/Lp8mDKH0), it's *that* easy
