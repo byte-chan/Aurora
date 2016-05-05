@@ -283,6 +283,7 @@ function updateConfig(user, template)
 end
 
 updateConfig(config, makeUiConfig())
+aurora.uiconfig = config
 function aurora.saveUIConfig()
   aFile.serializeFile(".aurora/uiConfig", config)
 end
