@@ -539,6 +539,12 @@ function fs.tmpfsProxy(structure, writeCallback, driveName)
 			error("Mode not supported", 1)
 		end
 	end
+	function p.getSize(path)
+		if p.isDir(path) then
+			return 0
+		end
+		return #getFile(path).data
+	end
 	return p
 end
 function fs.fileProxy(path, label)
