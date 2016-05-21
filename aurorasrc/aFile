@@ -23,10 +23,12 @@ end
 
 function writeFile(path, data)
   local f = fs.open(path, "w")
-  pcall(function()
-    f.write(data)
-  end)
-  f.close()
+  if f then
+    pcall(function()
+      f.write(data)
+    end)
+    f.close()
+  end
 end
 function serializeFile(path, data)
   writeFile(path, textutils.serialize(data))
