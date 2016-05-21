@@ -123,9 +123,11 @@ function fileBrowser(path, title)
       elseif ev[2] == keys.q then
         return nil
       elseif ev[2] == keys.left then
-        path = fs.getDir(path)
-        refresh()
-        sel = 1
+        if path ~= "" then
+          path = fs.getDir(path)
+          refresh()
+          sel = 1
+        end
       elseif ev[2] == keys.right then
         if list[sel] == "../" then
           path = fs.getDir(path)
