@@ -195,10 +195,11 @@ proc.launch(function() -- PID 1
   end
 end, "init")
 
+os.queueEvent("multitask")
 while _proc[1] ~= nil do
   local ev = {os.pullEventRaw()}
   for pid, v in pairs(_proc) do
-    coroutine.resume(v.co)
+    coroutine.resume(v.co, unpack(ev))
     if coroutine.status(v.co) == "dead" then
       _killProc[pid] = true
     end
