@@ -147,19 +147,66 @@ end
 
 aUtil.doFile(".aurora/settingsUI")
 
-if not aurora.config.uiPath or not fs.exists(aurora.config.uiPath) or fs.isDir(aurora.config.uiPath) then
-  term.setCursorPos(1, 1)
-  printError("\"uiPath\" not set or invalid, falling back to shell")
-  aUtil.doFile("rom/programs/shell")
-else
-  local ok, err = aUtil.doFile(aurora.config.uiPath)
-  if not ok then
-    term.setCursorPos(1, 1)
-    printError("UI crashed, falling back to shell - " .. tostring(err))
-    aUtil.doFile("rom/programs/shell")
-    os.reboot()
+-- "multitasking"
+local _proc = {}
+local _killProc = {}
+_G.proc = {}
+function proc.signal(pid, sig)
+  if _proc[pid] then
+    coroutine.resume(_proc[pid], "signal", tostring(sig))
+    return true
   end
+  return false
 end
-if aurora.config.uiShutdown then
-  os.shutdown()
+function proc.kill(pid)
+  _killProc[pid] = true
+end
+function proc.launch(fn, name)
+  _proc[#_proc + 1] = {
+    name = name or "lua",
+    co = coroutine.create(setfenv(fn, getfenv())),
+  }
+  return true
+end
+function proc.getInfo()
+  local t = {}
+  for pid, v in pairs(_proc) do
+    t[pid] = v.name
+  end
+  return t
+end
+
+proc.launch(function() -- PID 1
+  if not aurora.config.uiPath or not fs.exists(aurora.config.uiPath) or fs.isDir(aurora.config.uiPath) then
+    term.setCursorPos(1, 1)
+    printError("\"uiPath\" not set or invalid, falling back to shell")
+    aUtil.doFile("rom/programs/shell")
+  else
+    local ok, err = aUtil.doFile(aurora.config.uiPath)
+    if not ok then
+      term.setCursorPos(1, 1)
+      printError("UI crashed, falling back to shell - " .. tostring(err))
+      aUtil.doFile("rom/programs/shell")
+      os.reboot()
+    end
+  end
+  if aurora.config.uiShutdown then
+    os.shutdown()
+  end
+end, "init")
+
+while _proc[1] ~= nil do
+  local ev = {os.pullEventRaw()}
+  for pid, v in pairs(_proc) do
+    coroutine.resume(v.co)
+    if coroutine.status(v.co) == "dead" then
+      _killProc[pid] = true
+    end
+  end
+  for pid in pairs(_killProc) do
+    _proc[pid] = nil
+  end
+  if next(_killProc) then
+    _killProc = {}
+  end
 end
