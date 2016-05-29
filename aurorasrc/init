@@ -199,7 +199,12 @@ os.queueEvent("multitask")
 while _proc[1] ~= nil do
   local ev = {os.pullEventRaw()}
   for pid, v in pairs(_proc) do
-    coroutine.resume(v.co, unpack(ev))
+    if not v.filter or ev[1] == "terminate" or v.filter == ev[1] then
+      local ok, rtn = coroutine.resume(v.co, unpack(ev))
+      if ok then
+        v.filter = rtn
+      end
+    end
     if coroutine.status(v.co) == "dead" then
       _killProc[pid] = true
     end
