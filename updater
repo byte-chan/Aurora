@@ -1,7 +1,7 @@
 local args = {...}
 
 local quiet = args[1] == "-q"
-
+--[[
 local r = http.get("https://api.github.com/repos/MultHub/Aurora/git/refs/heads/master")
 local c = r.readAll():gsub("\"[a-z]+\":", function(match) return match:sub(2, #match - 2) .. "=" end)
 r.close()
@@ -14,9 +14,10 @@ if f then
 	currentSha = f.readAll()
 	f.close()
 end
+]]
 
 local extraScripts = {
-	"https://raw.github.com/MultHub/Aurora-apps/master/appsInstaller.lua",
+	"https://gitgud.io/RandomTrees/Aurora-apps/raw/master/appsInstaller.lua",
 }
 
 local function httpGet(url, save)
@@ -38,12 +39,13 @@ local function httpGet(url, save)
 	return text
 end
 
+--[[
 if currentSha == latestSha then
 	if not quiet then
 		print("Aurora running latest version, delete .aurora/currentSha to force")
 		sleep(1)
 	end
-else
+else]]
 	local files = {
 		["startup"] = "startup"
 	}
@@ -77,7 +79,7 @@ else
 		files["aurorasrc/" .. v] = ".aurora/" .. v
 	end
 
-	local githubUser    = "MultHub"
+	local githubUser    = "RandomTrees"
 	local githubRepo    = "Aurora"
 	local githubBranch  = "master"
 
@@ -92,7 +94,7 @@ else
 		if not user or not repo or not bran or not path then
 			error("not enough arguments, expected 4 or 5", 2)
 		end
-		local url = "https://raw.github.com/" .. user .. "/" .. repo .. "/" .. bran .. "/" .. path
+		local url = "https://gitgud.io/" .. user .. "/" .. repo .. "/raw/" .. bran .. "/" .. path
 		local text = httpGet(url)
 		if save then
 			local file = fs.open(save, "w")
@@ -149,11 +151,11 @@ else
 		term.setBackgroundColor(colors.black)
 		clear()
 	end
-
+--[[
 	local f = fs.open(".aurora/currentSha", "w")
 	f.write(latestSha)
 	f.close()
-end
+end]]
 
 for i, v in ipairs(extraScripts) do
 	if not quiet then write(v .. ": ") end
