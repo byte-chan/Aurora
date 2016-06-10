@@ -53,17 +53,17 @@ local function redraw()
     term.current().setVisible(false)
   end
   local termw, termh = term.getSize()
-  term.setTextColor(colors.black)
-  term.setBackgroundColor(colors.white)
+  term.setTextColor(aurora.uiconfig.theme.wallpaper.color == colors.black and colors.white or colors.black)
+  term.setBackgroundColor(aurora.uiconfig.theme.wallpaper.color)
   term.clear()
   term.setCursorPos(1, 1)
-  term.setBackgroundColor(colors.lightGray)
+  term.setBackgroundColor(aurora.uiconfig.theme.menubar.bg)
   term.clearLine()
   aUtil.cwrite("Apps", 1)
   term.setCursorPos(1, termh)
   term.clearLine()
   term.write("Q: quit, D: delete")
-  term.setBackgroundColor(colors.white)
+  term.setBackgroundColor(aurora.uiconfig.theme.wallpaper.color)
   local num = 2 - scrollY
   for i, name in ipairs(appNames) do
     if num > 1 and num < termh then
