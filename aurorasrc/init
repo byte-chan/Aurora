@@ -137,9 +137,25 @@ if fs.exists(".aurora/sdk/init") then
   print("SDK loaded")
 end
 
+local w, h = term.getSize()
+
 term.clear()
 aUtil.cwrite("Aurora \"" .. aurora.config.name .. "\"")
-aUtil.yield()
+aUtil.cwrite("Press [Alt] for startup options", h)
+
+local startupOptions = false
+local safeBoot = false
+
+local timer = os.startTimer(1)
+while true do
+  local ev = {os.pullEventRaw()}
+  if ev[1] == "timer" and ev[2] == timer then
+    break -- regular boot
+  elseif ev[1] == "key" and ev[2] == keys.leftAlt then
+    startupOptions = true
+    break -- startup options
+  end
+end
 
 if aurora.config.firstboot then
   aUtil.doFile(".aurora/firstBoot")
@@ -176,7 +192,7 @@ function proc.getInfo()
   return t
 end
 
-proc.launch(function() -- PID 1
+local function uiStartup()
   if not aurora.config.uiPath or not fs.exists(aurora.config.uiPath) or fs.isDir(aurora.config.uiPath) then
     term.setCursorPos(1, 1)
     printError("\"uiPath\" not set or invalid, falling back to shell")
@@ -193,26 +209,35 @@ proc.launch(function() -- PID 1
   if aurora.config.uiShutdown then
     os.shutdown()
   end
-end, "init")
+end
 
-os.queueEvent("multitask")
-while _proc[1] ~= nil do
-  local ev = {os.pullEventRaw()}
-  for pid, v in pairs(_proc) do
-    if not v.filter or ev[1] == "terminate" or v.filter == ev[1] then
-      local ok, rtn = coroutine.resume(v.co, unpack(ev))
-      if ok then
-        v.filter = rtn
+if startupOptions then
+  safeBoot = true -- TODO add menu
+end
+
+if safeBoot then
+  uiStartup()
+else
+  proc.launch(uiStartup, "init")
+  os.queueEvent("multitask")
+  while _proc[1] ~= nil do
+    local ev = {os.pullEventRaw()}
+    for pid, v in pairs(_proc) do
+      if not v.filter or ev[1] == "terminate" or v.filter == ev[1] then
+        local ok, rtn = coroutine.resume(v.co, unpack(ev))
+        if ok then
+          v.filter = rtn
+        end
+      end
+      if coroutine.status(v.co) == "dead" then
+        _killProc[pid] = true
       end
     end
-    if coroutine.status(v.co) == "dead" then
-      _killProc[pid] = true
+    for pid in pairs(_killProc) do
+      _proc[pid] = nil
     end
-  end
-  for pid in pairs(_killProc) do
-    _proc[pid] = nil
-  end
-  if next(_killProc) then
-    _killProc = {}
+    if next(_killProc) then
+      _killProc = {}
+    end
   end
 end
