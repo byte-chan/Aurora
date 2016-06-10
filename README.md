@@ -1,4 +1,4 @@
-### moved to https://gitgud.io/RandomTrees/Aurora
+### <del>moved to https://gitgud.io/RandomTrees/Aurora</del>
 
 Aurora [![maximum lame at https://gitter.im/MultHub/Aurora](https://badges.gitter.im/MultHub/Aurora.svg)](https://gitter.im/MultHub/Aurora?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 ======
