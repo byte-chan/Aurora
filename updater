@@ -16,7 +16,7 @@ if f then
 end
 
 local extraScripts = {
-	"https://raw.github.com/RandomTrees/Aurora-apps/master/appsInstaller.lua",
+	"https://raw.github.com/MultHub/Aurora-apps/master/appsInstaller.lua",
 }
 
 local function httpGet(url, save)
