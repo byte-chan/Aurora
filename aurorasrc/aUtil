@@ -19,12 +19,16 @@ function centerY()
   return math.ceil(h / 2)
 end
 
+function writeAt(x, y, str)
+  term.setCursorPos(x, y)
+  term.write(str)
+end
+
 function cwrite(str, cy)
   local w, h = term.getSize()
   local y = cy or math.ceil(h / 2)
   local x = math.ceil(w / 2) - math.floor(#str / 2)
-  term.setCursorPos(x, y)
-  term.write(str)
+  writeAt(x, y, str)
 end
 
 function doFile_env(env, path, ...)
