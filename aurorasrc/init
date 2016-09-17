@@ -215,7 +215,7 @@ end
 if startupOptions then
   local function _redraw()
     term.clear()
-    aUtil.center("Startup options", 1)
+    aUtil.cwrite("Startup options", 1)
     aUtil.writeAt(3, 2, "[1] Resume startup")
     aUtil.writeAt(3, 3, "[2] Safe boot, no multitasking")
     aUtil.writeAt(3, 4, "[3] Shell")
