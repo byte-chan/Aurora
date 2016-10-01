@@ -138,6 +138,53 @@ if fs.exists(".aurora/sdk/init") then
   print("SDK loaded")
 end
 
+local isLocked = false
+
+function aurora.lock()
+  local w, h = term.native().getSize()
+  if isLocked or not aurora.config.lockHash or aurora.config.lockHash == "" then
+    -- already locked or no password set, don't (re)lock
+    return
+  end
+  local _oldPE = os.pullEvent
+  os.pullEvent = os.pullEventRaw
+  isLocked = true
+  local win = window.create(term.native(), 1, 1, w, h, true)
+  local old = term.current()
+  term.redirect(win)
+  while true do
+    term.setBackgroundColor(aurora.uiconfig.theme.wallpaper.color)
+    term.clear()
+    term.setCursorPos(1, 1)
+    term.setTextColor(aurora.uiconfig.theme.menubar.bg == colors.black and colors.white or colors.black)
+    term.setBackgroundColor(aurora.uiconfig.theme.menubar.bg)
+    term.clearLine()
+    aUtil.cwrite("Computer locked", 1)
+    term.setBackgroundColor(aurora.uiconfig.theme.wallpaper.color)
+    term.setTextColor(aurora.uiconfig.theme.wallpaper.color == colors.black and colors.white or colors.black)
+    term.setCursorPos(2, 3)
+    term.write("Password:")
+    term.setCursorPos(1, 4)
+    local inp = read("*")
+    if inp ~= "" then
+      if aurora.config.lockHash == sha.sha256(inp) then
+        isLocked = false
+        os.pullEvent = _oldPE
+        term.redirect(old)
+        return
+      else
+        sleep(1)
+        term.setCursorPos(2, 4)
+        term.clearLine()
+        term.write("Access denied")
+        sleep(1.5)
+      end
+    end
+  end
+end
+
+aurora.lock()
+
 local w, h = term.getSize()
 
 term.clear()
