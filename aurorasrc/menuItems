@@ -26,6 +26,7 @@
   {label = "Credits",              func = function()
     aUtil.doFile(".aurora/credplay")
   end},
+  {label = "Lock computer",        func = aurora.lock},
   {label = "Reboot",               func = os.reboot},
   {label = "Shutdown",             func = os.shutdown},
 }
