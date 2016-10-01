@@ -182,5 +182,5 @@ function editText(current, message, mask)
   term.write("Current value (UP arrow key): " .. current)
   term.setCursorPos(1, 4)
   term.write("New value: ")
-  return read(nil, {current}, mask)
+  return read(mask, {current})
 end
