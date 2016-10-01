@@ -19,6 +19,7 @@ function aurora.settingsUI()
   
   local desc = setmetatable({
     "Rename this computer?",
+    "Set a password to lock this computer",
     "The path of the UI, feel free to change it",
     "Shuts down your computer if the UI crashes",
     "Disables setVisible render hack, more logging",
@@ -54,17 +55,25 @@ function aurora.settingsUI()
     term.setCursorPos(w - #aurora.config.name, 3)
     term.write(aurora.config.name)
     term.setCursorPos(2, 4)
-    term.write("[!] UI path")
-    term.setCursorPos(w - #aurora.config.uiPath, 4)
-    term.write(aurora.config.uiPath)
+    term.write("Password")
+    local passstr = "(not set)"
+    if aurora.config.lockHash and aurora.config.lockHash ~= "" then
+      passstr = ""
+    end
+    term.setCursorPos(w - #passstr, 4)
+    term.write(passstr)
     term.setCursorPos(2, 5)
-    term.write("UI shutdown")
+    term.write("[!] UI path")
+    term.setCursorPos(w - #aurora.config.uiPath, 5)
+    term.write(aurora.config.uiPath)
     term.setCursorPos(2, 6)
-    term.write("Debug mode")
+    term.write("UI shutdown")
     term.setCursorPos(2, 7)
+    term.write("Debug mode")
+    term.setCursorPos(2, 8)
     term.write("Advanced")
-    redrawBoolean(w - 5, 5, aurora.config.uiShutdown)
-    redrawBoolean(w - 5, 6, aurora.config.debug)
+    redrawBoolean(w - 5, 6, aurora.config.uiShutdown)
+    redrawBoolean(w - 5, 7, aurora.config.debug)
     if not aurora.config.debug then
       term.current().setVisible(true)
     end
@@ -75,15 +84,23 @@ function aurora.settingsUI()
       aurora.config.name = aUtil.editText(aurora.config.name, "Computer name")
     end,
     [2] = function()
-      aurora.config.uiPath = aUtil.editText(aurora.config.uiPath, "UI path")
+      local inp = aUtil.editText("", "Password - leave blank to clear", "*")
+      if inp == "" then
+        aurora.config.lockHash = nil
+      else
+        aurora.config.lockHash = sha.sha256(inp)
+      end
     end,
     [3] = function()
-      aurora.config.uiShutdown = not aurora.config.uiShutdown
+      aurora.config.uiPath = aUtil.editText(aurora.config.uiPath, "UI path")
     end,
     [4] = function()
-      aurora.config.debug = not aurora.config.debug
+      aurora.config.uiShutdown = not aurora.config.uiShutdown
     end,
     [5] = function()
+      aurora.config.debug = not aurora.config.debug
+    end,
+    [6] = function()
       aFile.serializeFile(".aurora/config", aurora.config)
       aUtil.doFile("rom/programs/edit", "/.aurora/config")
       local newConfig = aFile.unserializeFile(".aurora/config")
