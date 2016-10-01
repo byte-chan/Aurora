@@ -168,7 +168,7 @@ function fileBrowser(path, title)
   end
 end
 
-function editText(current, message)
+function editText(current, message, mask)
   term.setBackgroundColor(aurora.uiconfig.theme.wallpaper.color)
   term.clear()
   term.setCursorPos(1, 1)
@@ -182,5 +182,5 @@ function editText(current, message)
   term.write("Current value (UP arrow key): " .. current)
   term.setCursorPos(1, 4)
   term.write("New value: ")
-  return read(nil, {current})
+  return read(nil, {current}, mask)
 end
