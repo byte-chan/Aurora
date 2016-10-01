@@ -140,6 +140,13 @@ end
 
 local isLocked = false
 
+aurora.uiconfig = { -- before UI loads, use these values
+  theme = {
+    wallpaper = {color = colors.black},
+    menubar = {bg = colors.lightGray},
+  },
+}
+
 function aurora.lock()
   local w, h = term.native().getSize()
   if isLocked or not aurora.config.lockHash or aurora.config.lockHash == "" then
