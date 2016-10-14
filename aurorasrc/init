@@ -223,8 +223,14 @@ local _proc = {}
 local _killProc = {}
 _G.proc = {}
 function proc.signal(pid, sig)
-  if _proc[pid] then
-    coroutine.resume(_proc[pid], "signal", tostring(sig))
+  local p = _proc[pid]
+  if p then
+    if not p.filter or p.filter == "signal" then
+      local ok, rtn = coroutine.resume(p.co, "signal", tostring(sig))
+      if ok then
+        p.filter = rtn
+      end
+    end
     return true
   end
   return false
