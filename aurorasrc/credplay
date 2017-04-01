@@ -26,8 +26,8 @@ for i = 1, #c do
 end
 table.insert(lines, tmp)
 
-for i = 1, termh * 2 do
-  if i == termh + math.ceil(termh / 2) then
+for i = 1, termh do
+  if i == math.ceil(termh / 2) then
     table.insert(lines, "[C]Presented by LMNet")
   else
     table.insert(lines, "")
