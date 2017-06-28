@@ -10,7 +10,7 @@
     term.setTextColor(colors.white)
     term.clear()
     term.setCursorPos(1, 1)
-    aUtil.doFile("rom/programs/shell")
+    aUtil.doFile(shell.resolveProgram("shell"))
   end},
   {label = "UI config",            func = aurora.uiSettings},
   {label = "Aurora config",        func = aurora.settingsUI},
